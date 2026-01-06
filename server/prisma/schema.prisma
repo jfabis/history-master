@@ -1,0 +1,88 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Użytkownik i Autoryzacja (Google OAuth) ---
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  googleId      String    @unique
+  displayName   String?
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relacja 1:1 do postępów (grywalizacja)
+  progress      UserProgress?
+  
+  // Historia odpowiedzi (do algorytmu drill-and-practice)
+  answers       UserAnswer[]
+}
+
+// --- Grywalizacja ---
+
+model UserProgress {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  
+  xp            Int       @default(0)          // Punkty doświadczenia
+  level         Int       @default(1)          // Poziom gracza
+  currentStreak Int       @default(0)          // Dni z rzędu
+  lastActive    DateTime  @default(now())      // Do obliczania streaka
+}
+
+// --- Treści Edukacyjne (Historia) ---
+
+model Topic {
+  id          String     @id @default(uuid())
+  name        String     @unique             // np. "Starożytny Rzym", "II Wojna Światowa"
+  description String?
+  questions   Question[]
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  topicId       String
+  topic         Topic    @relation(fields: [topicId], references: [id])
+  
+  content       String   // Treść pytania
+  correctAnswer String   // Poprawna odpowiedź
+  options       String[] // Lista opcji (dla testów wyboru)
+  explanation   String?  // Wyjaśnienie historyczne (może być generowane przez AI)
+  
+  difficulty    Int      @default(1) // 1-5 (do adaptacyjnego dobierania pytań)
+  
+  answers       UserAnswer[]
+}
+
+// --- Śledzenie Nauki (Drill & Practice) ---
+
+model UserAnswer {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  
+  isCorrect  Boolean
+  answeredAt DateTime @default(now())
+}
+
+// --- Logi AI (Google Nano Banana / GenAI) ---
+
+model GeneratedAsset {
+  id        String   @id @default(uuid())
+  prompt    String
+  provider  String   @default("google-nano-banana") // Identyfikator użytego modelu
+  imageUrl  String   // URL do wygenerowanego obrazka (lub base64)
+  createdAt DateTime @default(now())
+}
