@@ -2,21 +2,24 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import AuthSuccess from './pages/AuthSuccess';
 import Dashboard from './pages/Dashboard';
+import DrillMode from './pages/DrillMode';
+import StudyMode from './pages/StudyMode';
+import TimelineMode from './pages/TimelineMode'; // <--- NOWY IMPORT
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Strona główna to Logowanie */}
         <Route path="/" element={<Login />} />
-        
-        {/* Callback z Google */}
         <Route path="/auth/success" element={<AuthSuccess />} />
-        
-        {/* Panel główny (dla zalogowanych) */}
         <Route path="/dashboard" element={<Dashboard />} />
         
-        {/* Fallback dla nieznanych tras */}
+        <Route path="/drill" element={<DrillMode />} />
+        <Route path="/study" element={<StudyMode />} />
+        
+        {/* Nowa trasa osi czasu */}
+        <Route path="/timeline" element={<TimelineMode />} />
+        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

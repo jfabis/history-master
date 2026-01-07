@@ -47,6 +47,7 @@ model Topic {
   name        String     @unique             // np. "Starożytny Rzym", "II Wojna Światowa"
   description String?
   questions   Question[]
+  cards       StudyCard[]
 }
 
 model Question {
@@ -85,4 +86,20 @@ model GeneratedAsset {
   provider  String   @default("google-nano-banana") // Identyfikator użytego modelu
   imageUrl  String   // URL do wygenerowanego obrazka (lub base64)
   createdAt DateTime @default(now())
+}
+model StudyCard {
+  id          String   @id @default(uuid())
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+  frontContent String  // Np. "Upadek Rzymu" lub Data
+  backContent  String  // Np. Opis wydarzenia, ciekawostka
+  type         String  @default("FACT") // FACT, DATE, FIGURE
+}
+model TimelineEvent {
+  id          String   @id @default(uuid())
+  year        String   // String, bo może być "753 p.n.e."
+  sortOrder   Int      // Do sortowania chronologicznego (-753, 1944 etc.)
+  title       String
+  description String
+  era         String   // Np. "Starożytność", "XX Wiek"
 }
