@@ -1,43 +1,125 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { User } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { PrismaClient, User } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class AuthController {
-  
-  /**
-   * Obsługuje powrót z Google. Generuje JWT i przekierowuje na Frontend.
-   */
+
   static async handleGoogleCallback(req: Request, res: Response) {
     try {
-      // Req.user jest ustawiane przez middleware passporta
       const user = req.user as User;
+      if (!user) return res.status(401).json({ message: 'Authentication failed' });
 
-      if (!user) {
-        return res.status(401).json({ message: 'Authentication failed' });
-      }
+      const secret = process.env.JWT_SECRET || 'secret';
+      const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1d' });
 
-      const secret = process.env.JWT_SECRET;
-      if (!secret) throw new Error('JWT_SECRET is not defined');
-
-      // Generowanie tokena JWT ważnego 1 dzień
-      const token = jwt.sign(
-        { 
-          id: user.id, 
-          email: user.email, 
-          googleId: user.googleId 
-        },
-        secret,
-        { expiresIn: '1d' }
-      );
-
-      // Przekierowanie na frontend z tokenem w parametrze URL
-      // Frontend (React) odbierze ten token i zapisze go w localStorage/cookies
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      res.redirect(`${frontendUrl}/auth/success?token=${token}`);
-      
+
+      // Fix CSP Error: Allow inline scripts
+      res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Autoryzacja Google</title>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: 'Georgia', serif; text-align: center; padding: 40px; background: #fdfbf7; color: #2c241b; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+              .loader { border: 4px solid #f3f3f3; border-top: 4px solid #8b1e1e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+              @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+              h1 { font-size: 24px; margin-bottom: 10px; }
+              p { color: #5c4d3c; margin-bottom: 20px; }
+              .error { color: #d32f2f; font-weight: bold; background: #ffebee; padding: 10px; border-radius: 4px; margin-top: 20px; }
+              /* Ukryty przycisk, pokazujący się tylko w razie problemów (po 3s) */
+              #manual-btn { display: none; background: #8b1e1e; color: #fff; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; }
+              #manual-btn:hover { background: #5c1414; }
+            </style>
+          </head>
+          <body>
+            <div class="loader"></div>
+            <h1>Autoryzacja zakończona!</h1>
+            <p>Trwa przekazywanie sesji...</p>
+            
+            <button id="manual-btn" onclick="sendToken()">Kliknij tutaj, jeśli okno się nie zamknie</button>
+
+            <script>
+              const token = '${token}';
+              
+              function sendToken() {
+                if (window.opener) {
+                  // Używamy wildcard '*' dla maksymalnej kompatybilności
+                  window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', token: token }, '*');
+                  setTimeout(() => window.close(), 500);
+                } else {
+                  document.querySelector('.loader').style.display = 'none';
+                  document.body.innerHTML += '<div class="error">Błąd: Nie wykryto okna głównego aplikacji. Jeśli zamknąłeś główną stronę, zaloguj się ponownie.</div>';
+                }
+              }
+
+              window.onload = sendToken;
+              
+              // Pokaż przycisk awaryjny po 3 sekundach
+              setTimeout(() => {
+                document.getElementById('manual-btn').style.display = 'block';
+              }, 3000);
+            </script>
+          </body>
+        </html>
+      `;
+
+      res.send(html);
+
     } catch (error) {
-      console.error('Auth Callback Error:', error);
+      console.error(error);
       res.redirect('http://localhost:5173/login?error=auth_failed');
     }
+  }
+
+  static async register(req: Request, res: Response) {
+    const { email, password, displayName } = req.body;
+
+    if (!email || !password || !displayName) {
+      return res.status(400).json({ error: 'Wypełnij wszystkie pola.' });
+    }
+
+    try {
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Użytkownik o tym emailu już istnieje.' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          displayName,
+          progress: { create: { xp: 0, level: 1 } }
+        }
+      });
+
+      const secret = process.env.JWT_SECRET || 'secret';
+      const token = jwt.sign({ id: newUser.id, email: newUser.email }, secret, { expiresIn: '1d' });
+
+      res.json({ token, user: { email: newUser.email, displayName: newUser.displayName } });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Błąd rejestracji.' });
+    }
+  }
+
+  static async login(req: Request, res: Response) {
+    const user = req.user as User;
+    if (!user) return res.status(401).json({ error: 'Błąd logowania.' });
+
+    const secret = process.env.JWT_SECRET || 'secret';
+    const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1d' });
+
+    res.json({ token, user: { email: user.email, displayName: user.displayName } });
   }
 }

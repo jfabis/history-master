@@ -4,7 +4,6 @@ import { DrillController } from './drill.controller';
 
 const router = Router();
 
-// Zabezpieczamy wszystkie trasy - użytkownik musi być zalogowany
 router.use(passport.authenticate('jwt', { session: false }));
 
 router.get('/topics', DrillController.getTopics);

@@ -7,7 +7,7 @@ export class TimelineController {
   static async getEvents(req: Request, res: Response) {
     try {
       const events = await prisma.timelineEvent.findMany({
-        orderBy: { sortOrder: 'asc' } // Sortujemy chronologicznie
+        orderBy: { sortOrder: 'asc' }
       });
       res.json(events);
     } catch (error) {

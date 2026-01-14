@@ -1,5 +1,3 @@
-// server/prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,43 +7,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- Użytkownik i Autoryzacja (Google OAuth) ---
-
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
-  googleId      String    @unique
+  googleId      String?   @unique // Opcjonalne dla logowania hasłem
+  password      String?   // Hasło (dla strategii lokalnej)
   displayName   String?
   avatarUrl     String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  // Relacja 1:1 do postępów (grywalizacja)
-  progress      UserProgress?
   
-  // Historia odpowiedzi (do algorytmu drill-and-practice)
+  progress      UserProgress?
   answers       UserAnswer[]
+  sessions      Session[]
 }
 
-// --- Grywalizacja ---
+model Session { 
+  id        String   @id @default(uuid())
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
 
 model UserProgress {
   id            String    @id @default(uuid())
   userId        String    @unique
   user          User      @relation(fields: [userId], references: [id])
-  
-  xp            Int       @default(0)          // Punkty doświadczenia
-  level         Int       @default(1)          // Poziom gracza
-  currentStreak Int       @default(0)          // Dni z rzędu
-  lastActive    DateTime  @default(now())      // Do obliczania streaka
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  currentStreak Int       @default(0)
+  totalActiveDays Int     @default(1)
+  lastActive    DateTime  @default(now())
 }
 
-// --- Treści Edukacyjne (Historia) ---
-
 model Topic {
-  id          String     @id @default(uuid())
-  name        String     @unique             // np. "Starożytny Rzym", "II Wojna Światowa"
+  id          String      @id @default(uuid())
+  name        String      @unique
   description String?
+  order       Int         @default(0)
   questions   Question[]
   cards       StudyCard[]
 }
@@ -54,52 +55,77 @@ model Question {
   id            String   @id @default(uuid())
   topicId       String
   topic         Topic    @relation(fields: [topicId], references: [id])
-  
-  content       String   // Treść pytania
-  correctAnswer String   // Poprawna odpowiedź
-  options       String[] // Lista opcji (dla testów wyboru)
-  explanation   String?  // Wyjaśnienie historyczne (może być generowane przez AI)
-  
-  difficulty    Int      @default(1) // 1-5 (do adaptacyjnego dobierania pytań)
-  
+  content       String
+  correctAnswer String
+  options       String[]
+  explanation   String?
+  difficulty    Int      @default(1)
   answers       UserAnswer[]
 }
 
-// --- Śledzenie Nauki (Drill & Practice) ---
+model StudyCard {
+  id           String   @id @default(uuid())
+  topicId      String
+  topic        Topic    @relation(fields: [topicId], references: [id])
+  frontContent String
+  backContent  String
+  type         String   @default("FACT")
+}
+
+model TimelineEvent {
+  id          String   @id @default(uuid())
+  year        String
+  sortOrder   Int
+  title       String
+  description String
+  era         String
+}
 
 model UserAnswer {
   id         String   @id @default(uuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id])
   questionId String
-  question   Question @relation(fields: [questionId], references: [id])
-  
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   isCorrect  Boolean
   answeredAt DateTime @default(now())
 }
 
-// --- Logi AI (Google Nano Banana / GenAI) ---
-
 model GeneratedAsset {
   id        String   @id @default(uuid())
   prompt    String
-  provider  String   @default("google-nano-banana") // Identyfikator użytego modelu
-  imageUrl  String   // URL do wygenerowanego obrazka (lub base64)
+  provider  String   @default("google-nano-banana")
+  imageUrl  String
   createdAt DateTime @default(now())
 }
-model StudyCard {
+
+model HistoricalBattle {
   id          String   @id @default(uuid())
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id])
-  frontContent String  // Np. "Upadek Rzymu" lub Data
-  backContent  String  // Np. Opis wydarzenia, ciekawostka
-  type         String  @default("FACT") // FACT, DATE, FIGURE
-}
-model TimelineEvent {
-  id          String   @id @default(uuid())
-  year        String   // String, bo może być "753 p.n.e."
-  sortOrder   Int      // Do sortowania chronologicznego (-753, 1944 etc.)
-  title       String
+  name        String   @unique
+  year        String
+  winner      String
+  loser       String
+  forces      String
   description String
-  era         String   // Np. "Starożytność", "XX Wiek"
+  prompt      String
+  createdAt   DateTime @default(now())
+}
+
+model HistoricalCostume {
+  id          String   @id @default(uuid())
+  name        String
+  era         String
+  class       String
+  description String
+  prompt      String
+  createdAt   DateTime @default(now())
+}
+
+model TimeDetectiveScenario {
+  id          String   @id @default(uuid())
+  era         String   // np. "Starożytny Egipt"
+  description String // opis dla admina
+  prompt      String   // Pełny prompt
+  difficulty  Int      @default(1)
+  createdAt   DateTime @default(now())
 }

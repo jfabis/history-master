@@ -4,23 +4,10 @@ import { AuthController } from './auth.controller';
 
 const router = Router();
 
-// 1. Inicjacja logowania: przekierowuje użytkownika do Google
-router.get(
-  '/google',
-  passport.authenticate('google', { 
-    scope: ['profile', 'email'],
-    session: false // Używamy JWT, więc sesje serwerowe są zbędne w API
-  })
-);
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false, prompt: 'select_account' }));
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login?error=failed' }), AuthController.handleGoogleCallback);
 
-// 2. Callback: Google odsyła użytkownika tutaj
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { 
-    session: false,
-    failureRedirect: 'http://localhost:5173/login?error=failed' 
-  }),
-  AuthController.handleGoogleCallback
-);
+router.post('/register', AuthController.register);
+router.post('/login', passport.authenticate('local', { session: false }), AuthController.login);
 
 export default router;

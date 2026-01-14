@@ -4,25 +4,19 @@ import axios from 'axios';
 import { ArrowLeft, Clock, Info } from 'lucide-react';
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
 
-// --- ELEMENT POJEDYNCZEJ DATY (DOCK ITEM) ---
 function TimelineItem({ mouseX, item, index }: { mouseX: MotionValue, item: any, index: number }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // 1. Obliczamy odległość kursora od środka tego elementu
   const distance = useTransform(mouseX, (val) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
     return val - bounds.x - bounds.width / 2;
   });
 
-  // 2. Skalowanie szerokości (Zwiększony zakres dla płynniejszego efektu)
   const widthSync = useTransform(distance, [-200, 0, 200], [60, 200, 60]);
   const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
-  // 3. Skalowanie czcionki (Zsynchronizowane z szerokością - teraz znacznie większa różnica)
-  const fontSizeRaw = useTransform(width, [60, 200], [12, 36]);
-  const fontSize = useSpring(fontSizeRaw, { mass: 0.1, stiffness: 150, damping: 12 });
+  const textScale = useTransform(width, [60, 200], [1, 3.5]);
 
-  // 4. Widoczność detali (tekstu) - szerszy zakres, żeby łatwiej było trafić
   const opacitySync = useTransform(distance, [-100, 0, 100], [0, 1, 0]);
   const opacity = useSpring(opacitySync, { mass: 0.1, stiffness: 150, damping: 12 });
 
@@ -34,21 +28,21 @@ function TimelineItem({ mouseX, item, index }: { mouseX: MotionValue, item: any,
     >
       {/* Efekt połysku (szkło/klejnot) */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/40 rounded-full pointer-events-none overflow-hidden"></div>
-      
+
       {/* Wewnętrzny pierścień ozdobny */}
       <div className="absolute inset-[3px] border border-[#5c4d3c]/40 rounded-full pointer-events-none"></div>
 
-      {/* ROK (Skalowana czcionka - teraz rośnie wyraźnie) */}
-      <motion.span 
-        style={{ fontSize }}
-        className="font-bold text-[#2c241b] text-center leading-none px-1 font-cinzel drop-shadow-sm z-20 pointer-events-none whitespace-nowrap"
+      {/* ROK - Skalowany razem z kołem */}
+      <motion.span
+        style={{ scale: textScale }}
+        className="font-bold text-[#2c241b] text-center leading-none px-1 font-cinzel drop-shadow-sm z-20 pointer-events-none whitespace-nowrap text-[10px]"
       >
         {item.year.replace('p.n.e.', '')}
       </motion.span>
 
       {/* DYMEK Z DETALAMI (Wyskakuje nad datą) */}
-      <motion.div 
-        style={{ opacity, y: -250, x: '-50%', scale: opacity }} 
+      <motion.div
+        style={{ opacity, y: -250, x: '-50%', scale: opacity }}
         className="absolute left-1/2 w-80 bg-[#fdfbf7] p-6 rounded-sm border-2 border-[#8b1e1e] shadow-[0_20px_60px_rgba(0,0,0,0.6)] pointer-events-none z-50 origin-bottom font-serif text-left"
       >
         {/* Dekoracyjne narożniki dymka */}
@@ -61,32 +55,29 @@ function TimelineItem({ mouseX, item, index }: { mouseX: MotionValue, item: any,
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-[#fdfbf7] border-b-2 border-r-2 border-[#8b1e1e] rotate-45"></div>
 
         <div className="flex justify-between items-center mb-2 border-b border-[#c5a059]/50 pb-2">
-            <span className="text-[10px] text-[#8b1e1e] uppercase tracking-widest font-bold">{item.era}</span>
-            <span className="text-xs font-bold text-[#2c241b] bg-[#e6dcc3] px-2 py-0.5 rounded">{item.year}</span>
+          <span className="text-[10px] text-[#8b1e1e] uppercase tracking-widest font-bold">{item.era}</span>
+          <span className="text-xs font-bold text-[#2c241b] bg-[#e6dcc3] px-2 py-0.5 rounded">{item.year}</span>
         </div>
-        
+
         <h3 className="text-xl font-bold font-cinzel text-[#2c241b] leading-tight mb-3">
           {item.title}
         </h3>
-        
+
         <p className="text-sm text-[#5c4d3c] italic leading-relaxed">
           {item.description}
         </p>
       </motion.div>
-      
-      {/* Ozdobna linia łącząca (szpilka) */}
-      <div className="absolute top-full left-1/2 w-0.5 h-20 bg-[#5c4d3c] -z-10 opacity-80 pointer-events-none"></div>
+
+      <div className="absolute top-full left-1/2 w-0.5 h-10 bg-[#5c4d3c] -z-10 opacity-0 pointer-events-none"></div>
     </motion.div>
   );
 }
 
-// --- GŁÓWNY WIDOK ---
 const TimelineMode = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Zmienna Framer Motion śledząca pozycję X myszki
   const mouseX = useMotionValue(Infinity);
 
   useEffect(() => {
@@ -109,63 +100,61 @@ const TimelineMode = () => {
 
   return (
     <div className="min-h-screen bg-[#2c241b] text-[#f3e5ab] font-serif overflow-hidden flex flex-col relative">
-      
-      {/* Tło - Mapa zamiast nudnej skóry */}
-      <div className="absolute inset-0 z-0 opacity-30 pointer-events-none" 
-           style={{
-             backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2074&auto=format&fit=crop')`,
-             backgroundSize: 'cover',
-             filter: 'sepia(80%) contrast(110%)'
-           }} 
+
+      {/* Tło - Mapa */}
+      <div className="absolute inset-0 z-0 opacity-30 pointer-events-none"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2074&auto=format&fit=crop')`,
+          backgroundSize: 'cover',
+          filter: 'sepia(80%) contrast(110%)'
+        }}
       />
       <div className="absolute inset-0 bg-[#2c241b]/40 mix-blend-multiply pointer-events-none"></div>
 
       {/* NAVBAR */}
       <nav className="p-6 flex items-center justify-between border-b border-[#c5a059]/30 relative z-20 bg-[#2c241b]/80 backdrop-blur-md shadow-lg">
-         <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[#c5a059] hover:text-[#f3e5ab] font-bold uppercase tracking-widest text-sm cursor-pointer transition-colors group">
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Powrót
-         </button>
-         <div className="text-center">
-             <h1 className="text-3xl font-cinzel font-bold text-[#f3e5ab] drop-shadow-md">Wielka Oś Czasu</h1>
-             <p className="text-xs text-[#8c7b75] uppercase tracking-[0.3em] mt-1">Interaktywna Chronologia</p>
-         </div>
-         <Clock className="w-6 h-6 text-[#c5a059]" />
+        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[#c5a059] hover:text-[#f3e5ab] font-bold uppercase tracking-widest text-sm cursor-pointer transition-colors group">
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Powrót
+        </button>
+        <div className="text-center">
+          <h1 className="text-3xl font-cinzel font-bold text-[#f3e5ab] drop-shadow-md">Wielka Oś Czasu</h1>
+          <p className="text-xs text-[#8c7b75] uppercase tracking-[0.3em] mt-1">Interaktywna Chronologia</p>
+        </div>
+        <Clock className="w-6 h-6 text-[#c5a059]" />
       </nav>
 
       {/* --- KONTENER PRZEWIJANIA --- */}
-      {/* overflow-y-visible pozwala dymkom wychodzić poza obszar paska przewijania */}
       <div className="flex-1 flex flex-col justify-center overflow-x-auto overflow-y-visible custom-scrollbar relative cursor-grab active:cursor-grabbing">
-         
-         {/* Główna Linia Pozioma (Oś) */}
-         <div className="absolute top-[calc(50%+40px)] left-0 right-0 h-1 bg-[#5c4d3c] min-w-[300vw] z-0 shadow-sm border-t border-b border-[#2c241b]"></div>
 
-         {/* --- STREFA AKTYWNA (HITBOX) --- 
-             Zwiększona wysokość (h-[400px]), aby pomieścić dymki.
-             pl-10: Start od lewej.
-             pr-[50vw]: Bufor na końcu, żeby można było przewinąć do ostatniego elementu na środek.
+        {/* Główna Linia Pozioma (Oś) - Idealnie wyśrodkowana */}
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#5c4d3c] min-w-[300vw] z-0 shadow-sm border-t border-b border-[#2c241b]"></div>
+
+        {/* --- STREFA AKTYWNA (HITBOX) --- 
+             pl-20: Start od lewej (nie od środka).
+             pr-[50vw]: Bufor na końcu.
          */}
-         <div 
-            className="flex items-end gap-6 pl-20 pr-[50vw] min-w-max h-[450px] pb-20 z-10"
-            onMouseMove={(e) => mouseX.set(e.clientX)}
-            onMouseLeave={() => mouseX.set(Infinity)}
-         >
-            {loading ? (
-               <div className="text-[#c5a059] animate-pulse text-xl font-cinzel self-center">Ładowanie kronik historycznych...</div>
-            ) : events.length === 0 ? (
-               <div className="text-red-400 self-center">Brak danych w bazie. Uruchom seed!</div>
-            ) : (
-               events.map((item, index) => (
-                 <TimelineItem key={item.id} mouseX={mouseX} item={item} index={index} />
-               ))
-            )}
-         </div>
-         
-         <div className="fixed bottom-8 left-0 right-0 text-center pointer-events-none opacity-80 z-0 bg-[#2c241b]/50 backdrop-blur-sm py-2">
-           <p className="text-[#f3e5ab] text-sm uppercase tracking-widest mb-1 font-bold text-shadow">
-             Przesuwaj w bok (Shift + Scroll) • Najeżdżaj na daty
-           </p>
-           <Info className="w-4 h-4 mx-auto text-[#c5a059]" />
-         </div>
+        <div
+          className="flex items-center gap-6 pl-20 pr-[50vw] min-w-max h-[450px] z-10"
+          onMouseMove={(e) => mouseX.set(e.clientX)}
+          onMouseLeave={() => mouseX.set(Infinity)}
+        >
+          {loading ? (
+            <div className="text-[#c5a059] animate-pulse text-xl font-cinzel self-center">Ładowanie kronik historycznych...</div>
+          ) : events.length === 0 ? (
+            <div className="text-red-400 self-center">Brak danych w bazie. Uruchom seed!</div>
+          ) : (
+            events.map((item, index) => (
+              <TimelineItem key={item.id} mouseX={mouseX} item={item} index={index} />
+            ))
+          )}
+        </div>
+
+        <div className="fixed bottom-8 left-0 right-0 text-center pointer-events-none opacity-80 z-0 bg-[#2c241b]/50 backdrop-blur-sm py-2">
+          <p className="text-[#f3e5ab] text-sm uppercase tracking-widest mb-1 font-bold text-shadow">
+            Przesuwaj w bok (Shift + Scroll) • Najeżdżaj na daty
+          </p>
+          <Info className="w-4 h-4 mx-auto text-[#c5a059]" />
+        </div>
       </div>
 
       <style>{`

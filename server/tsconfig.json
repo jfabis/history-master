@@ -1,25 +1,18 @@
 {
   "compilerOptions": {
-    /* Podstawowa konfiguracja dla Node.js */
     "target": "ES2020",
-    "module": "commonjs",                // Kompiluj do CommonJS (standard Node)
+    "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src",
-
-    /* Interop i biblioteki */
-    "esModuleInterop": true,             // Pozwala na importowanie modułów CJS jako default
+    "rootDir": ".",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,                // Przyspiesza kompilację ignorując błędy w bibliotekach
-
-    /* Restrykcje i Typy */
+    "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    
-    /* FIX TWOJEGO BŁĘDU: */
-    "verbatimModuleSyntax": false,       // Wyłączamy rygorystyczne sprawdzanie składni importów
+    "verbatimModuleSyntax": false,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/**/*"],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

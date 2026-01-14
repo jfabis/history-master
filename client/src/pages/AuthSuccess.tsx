@@ -6,17 +6,13 @@ const AuthSuccess = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. Pobierz token z URL (?token=xyz...)
     const token = searchParams.get('token');
 
     if (token) {
-      // 2. Zapisz token w localStorage
       localStorage.setItem('token', token);
-      
-      // 3. Przekieruj do panelu głównego
+
       navigate('/dashboard');
     } else {
-      // Jeśli brak tokena, wróć do logowania
       navigate('/');
     }
   }, [searchParams, navigate]);
