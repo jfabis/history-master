@@ -13,6 +13,9 @@ const Login = () => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'GOOGLE_AUTH_SUCCESS' && event.data?.token) {
         localStorage.setItem('token', event.data.token);
+        if (event.data.refreshToken) {
+          localStorage.setItem('refreshToken', event.data.refreshToken);
+        }
         navigate('/dashboard');
       }
     };
@@ -42,6 +45,9 @@ const Login = () => {
       const res = await axios.post('http://localhost:3000/auth/login', formData);
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
+        if (res.data.refreshToken) {
+          localStorage.setItem('refreshToken', res.data.refreshToken);
+        }
         navigate('/dashboard');
       }
     } catch (err: any) {

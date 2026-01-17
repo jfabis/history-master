@@ -9,5 +9,6 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
 
 router.post('/register', AuthController.register);
 router.post('/login', passport.authenticate('local', { session: false }), AuthController.login);
+router.post('/refresh', AuthController.refreshToken);
 
 export default router;

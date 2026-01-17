@@ -18,6 +18,9 @@ const Register = () => {
       const res = await axios.post('http://localhost:3000/auth/register', formData);
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
+        if (res.data.refreshToken) {
+          localStorage.setItem('refreshToken', res.data.refreshToken);
+        }
         navigate('/dashboard');
       }
     } catch (err: any) {
@@ -43,9 +46,9 @@ const Register = () => {
       <div className="w-full lg:w-2/5 flex items-center justify-center p-8 relative z-10">
         <div className="max-w-md w-full bg-[#fdfbf7] p-10 rounded-sm shadow-2xl border-t-8 border-[#8b1e1e] relative">
           <div className="absolute top-4 right-4 text-[#e6dcc3]">
-             <Scroll className="w-10 h-10 text-[#d4c5a6]" />
+            <Scroll className="w-10 h-10 text-[#d4c5a6]" />
           </div>
-          
+
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-[#2c241b] mb-2 font-cinzel">Rejestracja</h2>
             <p className="text-[#5c4d3c]">Stwórz nowe konto kronikarza</p>
@@ -56,12 +59,12 @@ const Register = () => {
               <label className="block text-sm font-bold text-[#5c4d3c] mb-1">Twoje Imię</label>
               <div className="relative">
                 <User className="absolute left-3 top-3 text-[#8c7b75] w-5 h-5" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full pl-10 p-3 bg-white border-2 border-[#d4c5a6] focus:border-[#8b1e1e] outline-none rounded-sm text-[#2c241b]"
                   placeholder="np. Mieszko I"
                   value={formData.displayName}
-                  onChange={e => setFormData({...formData, displayName: e.target.value})}
+                  onChange={e => setFormData({ ...formData, displayName: e.target.value })}
                   required
                 />
               </div>
@@ -71,12 +74,12 @@ const Register = () => {
               <label className="block text-sm font-bold text-[#5c4d3c] mb-1">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 text-[#8c7b75] w-5 h-5" />
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   className="w-full pl-10 p-3 bg-white border-2 border-[#d4c5a6] focus:border-[#8b1e1e] outline-none rounded-sm text-[#2c241b]"
                   placeholder="twoj@email.com"
                   value={formData.email}
-                  onChange={e => setFormData({...formData, email: e.target.value})}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
                   required
                 />
               </div>
@@ -86,12 +89,12 @@ const Register = () => {
               <label className="block text-sm font-bold text-[#5c4d3c] mb-1">Hasło</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 text-[#8c7b75] w-5 h-5" />
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   className="w-full pl-10 p-3 bg-white border-2 border-[#d4c5a6] focus:border-[#8b1e1e] outline-none rounded-sm text-[#2c241b]"
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={e => setFormData({...formData, password: e.target.value})}
+                  onChange={e => setFormData({ ...formData, password: e.target.value })}
                   required
                 />
               </div>

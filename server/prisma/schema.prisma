@@ -20,6 +20,7 @@ model User {
   progress      UserProgress?
   answers       UserAnswer[]
   sessions      Session[]
+  refreshTokens RefreshToken[]
 }
 
 model Session { 
@@ -128,4 +129,14 @@ model TimeDetectiveScenario {
   prompt      String   // Pełny prompt
   difficulty  Int      @default(1)
   createdAt   DateTime @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revoked   Boolean  @default(false)
 }

@@ -1,19 +1,45 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export class AuthController {
 
+  private static async generateTokens(user: { id: string, email: string, displayName?: string | null }) {
+    const accessTokenSecret = process.env.JWT_SECRET || 'secret';
+    // Access Token - krótki czas życia (np. 15min, tu damy 1h dla wygody dev)
+    const accessToken = jwt.sign(
+      { id: user.id, email: user.email },
+      accessTokenSecret,
+      { expiresIn: '1h' }
+    );
+
+    // Refresh Token - długi czas życia (np. 30 dni)
+    const refreshTokenString = crypto.randomBytes(40).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30); // +30 dni
+
+    // Zapisz do bazy
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshTokenString,
+        userId: user.id,
+        expiresAt: expiresAt
+      }
+    });
+
+    return { accessToken, refreshToken: refreshTokenString };
+  }
+
   static async handleGoogleCallback(req: Request, res: Response) {
     try {
       const user = req.user as User;
       if (!user) return res.status(401).json({ message: 'Authentication failed' });
 
-      const secret = process.env.JWT_SECRET || 'secret';
-      const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1d' });
+      const { accessToken, refreshToken } = await AuthController.generateTokens(user);
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
@@ -46,12 +72,17 @@ export class AuthController {
             <button id="manual-btn" onclick="sendToken()">Kliknij tutaj, jeśli okno się nie zamknie</button>
 
             <script>
-              const token = '${token}';
+              const accessToken = '${accessToken}';
+              const refreshToken = '${refreshToken}';
               
               function sendToken() {
                 if (window.opener) {
                   // Używamy wildcard '*' dla maksymalnej kompatybilności
-                  window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', token: token }, '*');
+                  window.opener.postMessage({ 
+                    type: 'GOOGLE_AUTH_SUCCESS', 
+                    token: accessToken,
+                    refreshToken: refreshToken
+                  }, '*');
                   setTimeout(() => window.close(), 500);
                 } else {
                   document.querySelector('.loader').style.display = 'none';
@@ -102,10 +133,13 @@ export class AuthController {
         }
       });
 
-      const secret = process.env.JWT_SECRET || 'secret';
-      const token = jwt.sign({ id: newUser.id, email: newUser.email }, secret, { expiresIn: '1d' });
+      const tokens = await AuthController.generateTokens(newUser);
 
-      res.json({ token, user: { email: newUser.email, displayName: newUser.displayName } });
+      res.json({
+        token: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user: { email: newUser.email, displayName: newUser.displayName }
+      });
 
     } catch (error) {
       console.error(error);
@@ -117,9 +151,53 @@ export class AuthController {
     const user = req.user as User;
     if (!user) return res.status(401).json({ error: 'Błąd logowania.' });
 
-    const secret = process.env.JWT_SECRET || 'secret';
-    const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1d' });
+    const tokens = await AuthController.generateTokens(user);
 
-    res.json({ token, user: { email: user.email, displayName: user.displayName } });
+    res.json({
+      token: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: { email: user.email, displayName: user.displayName }
+    });
+  }
+
+  static async refreshToken(req: Request, res: Response) {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ error: 'Refresh Token is required' });
+    }
+
+    try {
+      // 1. Znajdź token w bazie
+      const savedToken = await prisma.refreshToken.findUnique({
+        where: { token: refreshToken },
+        include: { user: true }
+      });
+
+      // 2. Weryfikacja
+      if (!savedToken || savedToken.revoked || new Date() > savedToken.expiresAt) {
+        // Opcjonalnie: Jeśli token wygasł lub nie istnieje, można go usunąć
+        return res.status(403).json({ error: 'Invalid or expired refresh token' });
+      }
+
+      // 3. Generuj nową parę (Rotacja tokenów - dla bezpieczeństwa)
+      // Revoke starego tokena (lub jego usunięcie)
+      await prisma.refreshToken.update({
+        where: { id: savedToken.id },
+        data: { revoked: true } // Oznaczamy stary jako zużyty
+        // Alternatywnie: await prisma.refreshToken.delete({ where: { id: savedToken.id } });
+      });
+
+      const newTokens = await AuthController.generateTokens(savedToken.user);
+
+      res.json({
+        token: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken
+      });
+
+    } catch (error) {
+      console.error('Refresh Token Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 }
