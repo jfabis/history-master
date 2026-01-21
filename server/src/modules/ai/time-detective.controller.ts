@@ -5,12 +5,10 @@ const prisma = new PrismaClient();
 
 export class TimeDetectiveController {
 
-    // GET /api/time-detective/random
     async getRandomScenario(req: Request, res: Response) {
         try {
             const excludeIds = req.query.exclude ? (req.query.exclude as string).split(',') : [];
 
-            // 1. Sprawdź ile scenariuszy jest dostępnych po wykluczeniu
             const availableCount = await prisma.timeDetectiveScenario.count({
                 where: {
                     id: { notIn: excludeIds }
@@ -29,7 +27,6 @@ export class TimeDetectiveController {
                     skip: skip
                 });
             } else {
-                // Pool exhausted - reset
                 poolReset = true;
                 const allCount = await prisma.timeDetectiveScenario.count();
                 const skip = Math.floor(Math.random() * allCount);
@@ -42,7 +39,6 @@ export class TimeDetectiveController {
                 return res.status(404).json({ error: 'Scenario not found' });
             }
 
-            // Pobieramy unikalne ery
             const eras = await prisma.timeDetectiveScenario.findMany({
                 select: { era: true },
                 distinct: ['era']
