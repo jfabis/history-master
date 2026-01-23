@@ -6,6 +6,9 @@
     "dev": "npm-run-all --parallel server client",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test -- --run",
+    "test:server": "cd server && npm test",
     "cleanup": "lsof -ti :3000 | xargs kill -9; lsof -ti :5173 | xargs kill -9; echo '✅ Porty 3000 i 5173 zwolnione!'"
   },
   "keywords": [],

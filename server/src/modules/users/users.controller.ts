@@ -4,6 +4,31 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// Funkcja obliczająca wymagane XP dla danego poziomu
+function getXPForLevel(level: number): number {
+  if (level <= 1) return 0;
+  if (level <= 5) return (level - 1) * 100; // Poziomy 1-5: po 100 XP
+  // Poziomy 6+: wzrost wykładniczy (1.5^(poziom-5) * 100)
+  return 400 + Math.floor(Math.pow(1.5, level - 5) * 100);
+}
+
+// Funkcja obliczająca poziom na podstawie XP
+function calculateLevel(xp: number): number {
+  let level = 1;
+  let requiredXP = 0;
+
+  // Sprawdzaj kolejne poziomy aż znajdziemy odpowiedni
+  while (true) {
+    const nextLevelXP = getXPForLevel(level + 1);
+    if (xp < nextLevelXP) {
+      return level;
+    }
+    level++;
+    // Zabezpieczenie przed nieskończoną pętlą
+    if (level > 100) return 100;
+  }
+}
+
 export class UsersController {
 
   static async getProfile(req: Request, res: Response) {
@@ -63,9 +88,23 @@ export class UsersController {
 
       const { password, ...userData } = user;
 
+      // Oblicz aktualny poziom i XP do następnego poziomu
+      const currentLevel = user.progress ? calculateLevel(user.progress.xp) : 1;
+      const xpForNextLevel = getXPForLevel(currentLevel + 1);
+      const xpForCurrentLevel = getXPForLevel(currentLevel);
+      const xpProgress = user.progress ? user.progress.xp - xpForCurrentLevel : 0;
+      const xpNeeded = xpForNextLevel - xpForCurrentLevel;
+
       res.json({
         ...userData,
         hasPassword: !!password,
+        progress: user.progress ? {
+          ...user.progress,
+          level: currentLevel,
+          xpForNextLevel,
+          xpProgress,
+          xpNeeded
+        } : null,
         stats: {
           totalAnswers,
           correctAnswers,
@@ -146,8 +185,8 @@ export class UsersController {
         }
       });
 
-      // Prosta logika levelowania (co 1000 XP)
-      const newLevel = Math.floor(progress.xp / 1000) + 1;
+      // Progresywna logika levelowania
+      const newLevel = calculateLevel(progress.xp + amount);
 
       if (newLevel > progress.level) {
         await prisma.userProgress.update({
@@ -158,7 +197,7 @@ export class UsersController {
 
       res.json({
         message: 'XP added successfully',
-        currentXP: progress.xp,
+        currentXP: progress.xp + amount,
         level: newLevel,
         gained: amount
       });

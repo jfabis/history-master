@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ArrowLeft, Clock, Info } from 'lucide-react';
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
 
-function TimelineItem({ mouseX, item, index }: { mouseX: MotionValue, item: any, index: number }) {
+function TimelineItem({ mouseX, item }: { mouseX: MotionValue, item: any }) {
   const ref = useRef<HTMLDivElement>(null);
 
   const distance = useTransform(mouseX, (val) => {
@@ -12,10 +12,10 @@ function TimelineItem({ mouseX, item, index }: { mouseX: MotionValue, item: any,
     return val - bounds.x - bounds.width / 2;
   });
 
-  const widthSync = useTransform(distance, [-200, 0, 200], [60, 200, 60]);
+  const widthSync = useTransform(distance, [-200, 0, 200], [63, 242, 63]);
   const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
-  const textScale = useTransform(width, [60, 200], [1, 3.5]);
+  const textScale = useTransform(width, [63, 242], [0.8, 4]);
 
   const opacitySync = useTransform(distance, [-100, 0, 100], [0, 1, 0]);
   const opacity = useSpring(opacitySync, { mass: 0.1, stiffness: 150, damping: 12 });
@@ -32,12 +32,11 @@ function TimelineItem({ mouseX, item, index }: { mouseX: MotionValue, item: any,
       {/* Wewnętrzny pierścień ozdobny */}
       <div className="absolute inset-[3px] border border-[#5c4d3c]/40 rounded-full pointer-events-none"></div>
 
-      {/* ROK - Skalowany razem z kołem */}
       <motion.span
         style={{ scale: textScale }}
         className="font-bold text-[#2c241b] text-center leading-none px-1 font-cinzel drop-shadow-sm z-20 pointer-events-none whitespace-nowrap text-[10px]"
       >
-        {item.year.replace('p.n.e.', '')}
+        {item.year}
       </motion.span>
 
       {/* DYMEK Z DETALAMI (Wyskakuje nad datą) */}
@@ -143,8 +142,8 @@ const TimelineMode = () => {
           ) : events.length === 0 ? (
             <div className="text-red-400 self-center">Brak danych w bazie. Uruchom seed!</div>
           ) : (
-            events.map((item, index) => (
-              <TimelineItem key={item.id} mouseX={mouseX} item={item} index={index} />
+            events.map((item) => (
+              <TimelineItem key={item.id} mouseX={mouseX} item={item} />
             ))
           )}
         </div>

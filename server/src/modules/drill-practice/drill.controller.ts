@@ -33,7 +33,9 @@ export class DrillController {
 
       const sanitizedQuestions = shuffled.map(q => {
         const { correctAnswer, ...rest } = q;
-        return rest;
+        // Dodaj wartość XP do każdego pytania
+        const xpValue = 10 + (q.difficulty * 2);
+        return { ...rest, xpValue };
       });
 
       res.json(sanitizedQuestions);

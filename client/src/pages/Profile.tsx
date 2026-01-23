@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Lock, Save, Award, Activity, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lock, Save, Activity, ShieldCheck } from 'lucide-react';
 
 interface UserStats {
   totalAnswers: number;
@@ -20,6 +20,9 @@ interface UserProfile {
     xp: number;
     level: number;
     currentStreak: number;
+    xpForNextLevel?: number;
+    xpProgress?: number;
+    xpNeeded?: number;
   };
   stats: UserStats;
 }
@@ -80,7 +83,6 @@ const Profile = () => {
   }
 
   const joinDate = new Date(profile.createdAt).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' });
-  const calculatedLevel = Math.floor(profile.progress.xp / 100) + 1;
 
   return (
     <div className="min-h-screen bg-[#2c241b] font-serif text-[#2c241b] relative overflow-hidden flex flex-col">
@@ -120,7 +122,22 @@ const Profile = () => {
               </div>
 
               <h2 className="text-2xl font-bold font-cinzel text-[#2c241b] mb-1">{profile.displayName || 'Nieznany Kronikarz'}</h2>
-              <p className="text-[#8c7b75] text-sm uppercase tracking-widest font-bold mb-6">Poziom {calculatedLevel}</p>
+              <p className="text-[#8c7b75] text-sm uppercase tracking-widest font-bold mb-2">Poziom {profile.progress.level}</p>
+
+              {/* Pasek postępu XP */}
+              {profile.progress.xpNeeded && (
+                <div className="mb-6">
+                  <div className="w-full bg-[#e6dcc3] rounded-full h-2 overflow-hidden border border-[#d4c5a6]">
+                    <div
+                      className="bg-gradient-to-r from-[#c5a059] to-[#8b1e1e] h-full transition-all duration-500"
+                      style={{ width: `${Math.min((profile.progress.xpProgress || 0) / profile.progress.xpNeeded * 100, 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-center text-[#8c7b75] mt-1">
+                    {profile.progress.xpProgress} / {profile.progress.xpNeeded} XP do poziomu {profile.progress.level + 1}
+                  </p>
+                </div>
+              )}
 
               <div className="text-left space-y-4 text-sm text-[#5c4d3c] border-t border-[#e6dcc3] pt-6">
                 <div className="flex justify-between items-center border-b border-[#e6dcc3]/50 pb-2">

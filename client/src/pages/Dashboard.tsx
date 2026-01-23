@@ -13,6 +13,9 @@ interface UserProfile {
     level: number;
     currentStreak: number;
     totalActiveDays: number;
+    xpForNextLevel?: number;
+    xpProgress?: number;
+    xpNeeded?: number;
   } | null;
 }
 
@@ -51,10 +54,6 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  const xp = user?.progress?.xp || 0;
-  const level = Math.floor(xp / 100) + 1;
-  const progressToNextLevel = xp % 100;
-
   return (
     <div className="min-h-screen bg-[#f0e6d2] font-serif text-[#2c241b] relative">
 
@@ -80,7 +79,7 @@ const Dashboard = () => {
                   {user?.displayName || user?.email || 'Ładowanie...'}
                 </span>
                 <span className="text-xs text-[#c5a059] uppercase tracking-widest">
-                  Poziom {level} • {loading ? '...' : 'Kronikarz'}
+                  Poziom {user?.progress?.level || 1} • {loading ? '...' : 'Kronikarz'}
                 </span>
               </div>
 
@@ -148,7 +147,7 @@ const Dashboard = () => {
             <div>
               <p className="text-sm text-[#8c7b75] uppercase tracking-widest font-bold">Chwała (XP)</p>
               <p className="text-3xl font-bold text-[#2c241b]">
-                {loading ? '...' : `${xp} XP`}
+                {loading ? '...' : `${user?.progress?.xp || 0} XP`}
               </p>
             </div>
           </div>
@@ -160,13 +159,18 @@ const Dashboard = () => {
             <div className="z-10 w-full pr-4">
               <div className="flex justify-between items-baseline">
                 <p className="text-sm text-[#8c7b75] uppercase tracking-widest font-bold">
-                  Poziom {level} <span className="mx-1 text-[#c5a059]">→</span> {level + 1}
+                  Poziom {user?.progress?.level || 1} <span className="mx-1 text-[#c5a059]">→</span> {(user?.progress?.level || 1) + 1}
                 </p>
-                <span className="text-xs text-[#c5a059] font-bold">{progressToNextLevel} / 100 XP</span>
+                <span className="text-xs text-[#c5a059] font-bold">
+                  {user?.progress?.xpProgress || 0} / {user?.progress?.xpNeeded || 100} XP
+                </span>
               </div>
 
               <div className="w-full bg-[#e6dcc3] h-2 rounded-full mt-2 overflow-hidden border border-[#d4c5a6]">
-                <div className="bg-[#8b1e1e] h-full transition-all duration-1000" style={{ width: `${progressToNextLevel}%` }}></div>
+                <div
+                  className="bg-[#8b1e1e] h-full transition-all duration-1000"
+                  style={{ width: `${Math.min((user?.progress?.xpProgress || 0) / (user?.progress?.xpNeeded || 100) * 100, 100)}%` }}
+                ></div>
               </div>
             </div>
           </div>
@@ -204,7 +208,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={(e) => { e.stopPropagation(); navigate('/study'); }}
-                className="w-full py-2 border-2 border-[#8b1e1e] text-[#8b1e1e] font-bold uppercase tracking-widest text-xs hover:bg-[#8b1e1e] hover:text-[#f3e5ab] transition-all"
+                className="w-full py-2 border-2 border-[#2c241b] text-[#2c241b] font-bold uppercase tracking-widest text-xs hover:bg-[#2c241b] hover:text-[#f3e5ab] transition-all"
               >
                 Otwórz Księgę
               </button>
@@ -266,7 +270,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={(e) => { e.stopPropagation(); navigate('/timeline'); }}
-                className="w-full py-2 border-2 border-[#c5a059] text-[#c5a059] bg-[#2c241b] font-bold uppercase tracking-widest text-xs hover:bg-[#c5a059] hover:text-[#2c241b] transition-all"
+                className="w-full py-2 border-2 border-[#2c241b] text-[#2c241b] font-bold uppercase tracking-widest text-xs hover:bg-[#2c241b] hover:text-[#f3e5ab] transition-all"
               >
                 Podróżuj
               </button>
@@ -301,7 +305,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={(e) => { e.stopPropagation(); navigate('/ai'); }}
-                className="w-full py-2 border-2 border-[#8b1e1e] bg-[#2c241b] text-[#c5a059] font-bold uppercase tracking-widest text-xs hover:bg-[#c5a059] hover:text-[#2c241b] transition-all flex items-center justify-center gap-2"
+                className="w-full py-2 border-2 border-[#2c241b] text-[#2c241b] font-bold uppercase tracking-widest text-xs hover:bg-[#2c241b] hover:text-[#f3e5ab] transition-all flex items-center justify-center gap-2"
               >
                 <BrainCircuit size={14} />
                 Przyzwij

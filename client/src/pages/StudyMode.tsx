@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, RotateCw, ChevronRight, ChevronLeft, Scroll } from 'lucide-react';
+import { ArrowLeft, BookOpen, RotateCw, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface StudyCard {
   id: string;
@@ -26,6 +26,7 @@ const StudyMode = () => {
   const [cards, setCards] = useState<StudyCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [currentTopicName, setCurrentTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +56,13 @@ const StudyMode = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+
+      // Znajdź nazwę tematu
+      const selectedTopic = topics.find(t => t.id === id);
+      if (selectedTopic) {
+        setCurrentTopicName(selectedTopic.name);
+      }
+
       const res = await axios.get(`http://localhost:3000/api/study/${id}/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -200,7 +208,7 @@ const StudyMode = () => {
 
       {/* Nagłówek */}
       <div className="text-center mb-8 z-10">
-        <h2 className="text-3xl lg:text-4xl text-[#f3e5ab] font-bold tracking-widest mb-2 font-cinzel">Księga Wiedzy</h2>
+        <h2 className="text-3xl lg:text-4xl text-[#f3e5ab] font-bold tracking-widest mb-2 font-cinzel">{currentTopicName || 'Księga Wiedzy'}</h2>
         <p className="text-[#c5a059] uppercase tracking-widest text-xs">Karta {currentIndex + 1} z {cards.length}</p>
       </div>
 

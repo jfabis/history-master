@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Sparkles, Swords, Shirt, HelpCircle, ImageOff, CheckCircle, XCircle, BrainCircuit } from 'lucide-react';
@@ -58,6 +58,31 @@ const AIMode = () => {
   // Stan dla Stroju
   const [currentCostume, setCurrentCostume] = useState<Costume | null>(null);
   const [seenCostumeIds, setSeenCostumeIds] = useState<string[]>([]);
+
+  // ==================== PERSYSTENCJA W LOCALSTORAGE ====================
+  // Wczytaj historię widzianych scenariuszy przy starcie
+  useEffect(() => {
+    const savedScenarioIds = localStorage.getItem('seenScenarioIds');
+    const savedBattleIds = localStorage.getItem('seenBattleIds');
+    const savedCostumeIds = localStorage.getItem('seenCostumeIds');
+
+    if (savedScenarioIds) setSeenScenarioIds(JSON.parse(savedScenarioIds));
+    if (savedBattleIds) setSeenBattleIds(JSON.parse(savedBattleIds));
+    if (savedCostumeIds) setSeenCostumeIds(JSON.parse(savedCostumeIds));
+  }, []);
+
+  // Zapisuj zmiany do localStorage
+  useEffect(() => {
+    localStorage.setItem('seenScenarioIds', JSON.stringify(seenScenarioIds));
+  }, [seenScenarioIds]);
+
+  useEffect(() => {
+    localStorage.setItem('seenBattleIds', JSON.stringify(seenBattleIds));
+  }, [seenBattleIds]);
+
+  useEffect(() => {
+    localStorage.setItem('seenCostumeIds', JSON.stringify(seenCostumeIds));
+  }, [seenCostumeIds]);
 
 
 
