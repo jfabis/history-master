@@ -91,9 +91,6 @@ JWT_REFRESH_SECRET="twoj_jeszcze_dluzszy_sekret_odswiezania"
 GOOGLE_CLIENT_ID="twoj-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="twoj-client-secret"
 
-# OpenAI (Generowanie obrazów w trybie AI)
-OPENAI_API_KEY="sk-projekt-..."
-
 # Frontend URL (CORS)
 CLIENT_URL="http://localhost:5173"
 ```
