@@ -3,7 +3,6 @@
 > **Odkryj przeszłość na nowo.**  
 > Interaktywna platforma edukacyjna łącząca naukę historii z grywalizacją i sztuczną inteligencją.
 
-![HistoryMaster Banner](https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1200&auto=format&fit=crop)
 
 ## 🌟 O Projekcie
 
