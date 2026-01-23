@@ -1,7 +1,7 @@
 # HistoryMaster 📜✨
 
-> **Odkryj przeszłość na nowo.**  
-> Interaktywna platforma edukacyjna łącząca naukę historii z grywalizacją i sztuczną inteligencją.
+**Odkryj przeszłość na nowo.**  
+Interaktywna platforma edukacyjna łącząca naukę historii z grywalizacją i sztuczną inteligencją.
 
 
 ## 🌟 O Projekcie
