@@ -10,46 +10,53 @@ export class CostumesController {
         try {
             const excludeIds = req.query.exclude ? (req.query.exclude as string).split(',') : [];
 
-            // 1. Sprawdź ile strojów jest dostępnych po wykluczeniu
-            const availableCount = await prisma.historicalCostume.count({
+            // Pobierz WSZYSTKIE dostępne ID
+            const availableCostumes = await prisma.historicalCostume.findMany({
                 where: {
                     id: { notIn: excludeIds }
-                }
+                },
+                select: { id: true }
             });
 
-            console.log(`[Costumes] Available: ${availableCount}, Excluded: ${excludeIds.length}`);
+            console.log(`[Costumes] Available IDs: ${availableCostumes.length}, Excluded: ${excludeIds.length}`);
 
-            let randomCostume;
+            let selectedId: string;
             let poolReset = false;
 
-            if (availableCount > 0) {
-                // Jeśli są dostępne niewykluczone stroje, losuj z nich
-                const skip = Math.floor(Math.random() * availableCount);
-                randomCostume = await prisma.historicalCostume.findFirst({
-                    where: {
-                        id: { notIn: excludeIds }
-                    },
-                    skip: skip
-                });
+            if (availableCostumes.length > 0) {
+                // Losuj z dostępnych
+                const randomIndex = Math.floor(Math.random() * availableCostumes.length);
+                selectedId = availableCostumes[randomIndex].id;
             } else {
-                // JEŚLI WYCZERPANO PULĘ - reset
+                // Pula wyczerpana - reset
                 console.log('[Costumes] Pool exhausted, resetting cycle!');
                 poolReset = true;
 
-                const allCount = await prisma.historicalCostume.count();
-                const skip = Math.floor(Math.random() * allCount);
-                randomCostume = await prisma.historicalCostume.findFirst({
-                    skip: skip
+                // Pobierz wszystkie ID z bazy (reset wykluczeń)
+                const allCostumes = await prisma.historicalCostume.findMany({
+                    select: { id: true }
                 });
+
+                if (allCostumes.length === 0) {
+                    return res.status(404).json({ error: 'Baza strojów jest pusta' });
+                }
+
+                const randomIndex = Math.floor(Math.random() * allCostumes.length);
+                selectedId = allCostumes[randomIndex].id;
             }
 
+            // Pobierz pełne dane wylosowanego stroju
+            const randomCostume = await prisma.historicalCostume.findUnique({
+                where: { id: selectedId }
+            });
+
             if (!randomCostume) {
-                return res.status(404).json({ error: 'Nie znaleziono żadnych strojów (baza pusta?)' });
+                return res.status(500).json({ error: 'Błąd pobierania wylosowanego stroju' });
             }
 
             return res.json({
                 ...randomCostume,
-                poolReset // Flaga dla frontendu
+                poolReset
             });
 
         } catch (error) {

@@ -9,31 +9,33 @@ export class TimeDetectiveController {
         try {
             const excludeIds = req.query.exclude ? (req.query.exclude as string).split(',') : [];
 
-            const availableCount = await prisma.timeDetectiveScenario.count({
-                where: {
-                    id: { notIn: excludeIds }
-                }
+            const availableScenarios = await prisma.timeDetectiveScenario.findMany({
+                where: { id: { notIn: excludeIds } },
+                select: { id: true }
             });
 
-            let randomScenario;
+            console.log(`[TimeDetective] Available IDs: ${availableScenarios.length}, Excluded: ${excludeIds.length}`);
+
+            let selectedId: string;
             let poolReset = false;
 
-            if (availableCount > 0) {
-                const skip = Math.floor(Math.random() * availableCount);
-                randomScenario = await prisma.timeDetectiveScenario.findFirst({
-                    where: {
-                        id: { notIn: excludeIds }
-                    },
-                    skip: skip
-                });
+            if (availableScenarios.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableScenarios.length);
+                selectedId = availableScenarios[randomIndex].id;
             } else {
+                console.log('[TimeDetective] Pool exhausted, resetting cycle!');
                 poolReset = true;
-                const allCount = await prisma.timeDetectiveScenario.count();
-                const skip = Math.floor(Math.random() * allCount);
-                randomScenario = await prisma.timeDetectiveScenario.findFirst({
-                    skip: skip
-                });
+                const allScenarios = await prisma.timeDetectiveScenario.findMany({ select: { id: true } });
+
+                if (allScenarios.length === 0) return res.status(404).json({ error: 'No scenarios found' });
+
+                const randomIndex = Math.floor(Math.random() * allScenarios.length);
+                selectedId = allScenarios[randomIndex].id;
             }
+
+            const randomScenario = await prisma.timeDetectiveScenario.findUnique({
+                where: { id: selectedId }
+            });
 
             if (!randomScenario) {
                 return res.status(404).json({ error: 'Scenario not found' });
