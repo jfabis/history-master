@@ -1,9 +1,8 @@
 # HistoryMaster 📜✨
 
-> **Odkryj przeszłość na nowo.**  
-> Interaktywna platforma edukacyjna łącząca naukę historii z grywalizacją i sztuczną inteligencją.
+**Odkryj przeszłość na nowo.**  
+Interaktywna platforma edukacyjna łącząca naukę historii z grywalizacją i sztuczną inteligencją.
 
-![HistoryMaster Banner](https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1200&auto=format&fit=crop)
 
 ## 🌟 O Projekcie
 
@@ -91,9 +90,6 @@ JWT_REFRESH_SECRET="twoj_jeszcze_dluzszy_sekret_odswiezania"
 # Google OAuth (Logowanie przez Google)
 GOOGLE_CLIENT_ID="twoj-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="twoj-client-secret"
-
-# OpenAI (Generowanie obrazów w trybie AI)
-OPENAI_API_KEY="sk-projekt-..."
 
 # Frontend URL (CORS)
 CLIENT_URL="http://localhost:5173"
