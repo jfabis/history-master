@@ -1,4 +1,4 @@
-# Jak włączyć prawdziwe Nano Banana (Vertex AI)
+# Jak włączyć prawdziwe Google Vertex AI (Imagen 3)
 
 ## Aktualny stan
 - ✅ Mock adapter z profesjonalnymi obrazami z Wikimedia Commons
@@ -24,8 +24,8 @@ const aiAdapter = new MockHistoricalImageAdapter();
 
 **Na tę:**
 ```typescript
-import { GoogleNanoBananaAdapter } from '../../shared/adapters/image-gen.adapter';
-const aiAdapter = new GoogleNanoBananaAdapter();
+import { GoogleVertexAIAdapter } from '../../shared/adapters/image-gen.adapter';
+const aiAdapter = new GoogleVertexAIAdapter();
 ```
 
 ### 3. Zrestartuj serwer
@@ -36,7 +36,7 @@ npm run dev
 ```
 
 ### 4. Gotowe!
-Nano Banana będzie teraz generował unikalne, profesjonalne obrazy historyczne używając Imagen 3.0.
+Google Vertex AI będzie teraz generował unikalne, profesjonalne obrazy historyczne używając Imagen 3.0.
 
 ## Profesjonalne prompty
 

@@ -95,7 +95,7 @@ model UserAnswer {
 model GeneratedAsset {
   id        String   @id @default(uuid())
   prompt    String
-  provider  String   @default("google-nano-banana")
+  provider  String   @default("google-vertex-ai")
   imageUrl  String
   createdAt DateTime @default(now())
 }

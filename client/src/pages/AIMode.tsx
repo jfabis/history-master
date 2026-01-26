@@ -289,7 +289,7 @@ const AIMode = () => {
 
         <main className="flex-1 flex flex-col items-center justify-center p-6">
           <Sparkles className="w-16 h-16 text-[#c5a059] mb-6" />
-          <h1 className="text-4xl font-bold font-cinzel mb-4">Wizje AI - Nano Banana</h1>
+          <h1 className="text-4xl font-bold font-cinzel mb-4">Wizje AI - Google Vertex AI</h1>
           <p className="text-[#8c7b75] mb-12 text-lg">Wybierz tryb gry:</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
@@ -350,7 +350,7 @@ const AIMode = () => {
         {gameState === 'LOADING' && (
           <div className="text-center max-w-2xl px-6">
             <div className="w-24 h-24 border-t-4 border-[#c5a059] rounded-full animate-spin mx-auto mb-8"></div>
-            <h3 className="text-2xl font-cinzel mb-4">Nano Banana generuje wizję...</h3>
+            <h3 className="text-2xl font-cinzel mb-4">AI generuje wizję...</h3>
             <div className="bg-[#2c241b]/50 p-6 rounded border border-[#5c4d3c]">
               <p className="text-[#c5a059] font-bold mb-2 text-sm uppercase tracking-widest">Ciekawostka Historyczna</p>
               <p className="text-[#f3e5ab] italic text-lg animate-pulse">

@@ -1,7 +1,7 @@
 import { GoogleAuth } from 'google-auth-library';
 import path from 'path';
 
-export class GoogleNanoBananaAdapter {
+export class GoogleVertexAIAdapter {
   private auth: GoogleAuth;
   private projectId: string = '';
   private location: string = 'us-central1';
@@ -18,7 +18,7 @@ export class GoogleNanoBananaAdapter {
           credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
         }
       } catch (e) {
-        console.error('[NanoBanana] Failed to parse GOOGLE_CREDENTIALS_JSON:', e);
+        console.error('[VertexAI] Failed to parse GOOGLE_CREDENTIALS_JSON:', e);
       }
     }
 
@@ -31,7 +31,7 @@ export class GoogleNanoBananaAdapter {
     }
 
     if (!credentials) {
-      console.error('[NanoBanana] CRITICAL: No Google credentials found (ENV or file)');
+      console.error('[VertexAI] CRITICAL: No Google credentials found (ENV or file)');
       // Pusty auth, to wywali błąd później przy próbie użycia, ale nie crashuje startu
       this.auth = new GoogleAuth();
     } else {
@@ -43,14 +43,14 @@ export class GoogleNanoBananaAdapter {
         scopes: ['https://www.googleapis.com/auth/cloud-platform'],
       });
 
-      console.log(`[NanoBanana] Initialized with project: ${this.projectId}`);
+      console.log(`[VertexAI] Initialized with project: ${this.projectId}`);
     }
   }
 
   async generateImage(params: { prompt: string; mode?: string }): Promise<string> {
-    console.log(`[NanoBanana] ===== PROMPT =====`);
+    console.log(`[VertexAI] ===== PROMPT =====`);
     console.log(params.prompt);
-    console.log(`[NanoBanana] ================`);
+    console.log(`[VertexAI] ================`);
 
     try {
       const client = await this.auth.getClient();
@@ -62,7 +62,7 @@ export class GoogleNanoBananaAdapter {
 
       const endpoint = `https://${this.location}-aiplatform.googleapis.com/v1/projects/${this.projectId}/locations/${this.location}/publishers/google/models/imagen-3.0-generate-001:predict`;
 
-      console.log('[NanoBanana] Calling Vertex AI Imagen 3...');
+      console.log('[VertexAI] Calling Vertex AI Imagen 3...');
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -88,7 +88,7 @@ export class GoogleNanoBananaAdapter {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[NanoBanana] Vertex AI Error:', errorText);
+        console.error('[VertexAI] Vertex AI Error:', errorText);
         throw new Error(`Vertex AI returned ${response.status}: ${errorText}`);
       }
 
@@ -97,14 +97,14 @@ export class GoogleNanoBananaAdapter {
       const base64Image = data.predictions?.[0]?.bytesBase64Encoded;
 
       if (base64Image) {
-        console.log('[NanoBanana] ✅ Professional historical image generated!');
+        console.log('[VertexAI] ✅ Professional historical image generated!');
         return `data:image/png;base64,${base64Image}`;
       } else {
         throw new Error('No image data in Vertex AI response');
       }
 
     } catch (error: any) {
-      console.error('[NanoBanana] Error:', error.message);
+      console.error('[VertexAI] Error:', error.message);
       throw error;
     }
   }

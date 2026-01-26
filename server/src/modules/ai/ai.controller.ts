@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { GoogleNanoBananaAdapter } from '../../shared/adapters/image-gen.adapter';
+import { GoogleVertexAIAdapter } from '../../shared/adapters/image-gen.adapter';
 
 const prisma = new PrismaClient();
-const aiAdapter = new GoogleNanoBananaAdapter();
+const aiAdapter = new GoogleVertexAIAdapter();
 
 export class AIController {
 
@@ -28,7 +28,7 @@ export class AIController {
         data: {
           prompt: prompt.substring(0, 100) + '...', // Skracamy do logów
           imageUrl: imageUrl,
-          provider: 'Nano Banana v1',
+          provider: 'Google Vertex AI',
         }
       });
 

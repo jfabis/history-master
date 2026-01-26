@@ -296,7 +296,7 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-[#2c241b] via-transparent to-transparent"></div>
               <div className="absolute bottom-4 left-4">
                 <h3 className="text-xl font-bold text-[#f3e5ab] font-cinzel tracking-wide group-hover:text-[#c5a059] transition-colors drop-shadow-md">Wizje AI</h3>
-                <span className="text-[10px] text-[#e6dcc3] uppercase tracking-widest">Nano Banana</span>
+                <span className="text-[10px] text-[#e6dcc3] uppercase tracking-widest">Powered by AI</span>
               </div>
             </div>
             <div className="p-6 flex-1 flex flex-col">
