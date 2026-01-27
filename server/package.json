@@ -7,7 +7,7 @@
     "dev": "nodemon --watch src --ext ts,json --exec tsx src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "jest --coverage",
+    "test": "jest --coverage --forceExit",
     "test:watch": "jest --watch",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push"
