@@ -49,7 +49,7 @@ const Profile = () => {
       setProfile(res.data);
     } catch (err) {
       console.error(err);
-      navigate('/');
+      // ProtectedRoute obsługuje przekierowanie, więc tutaj tylko logujemy błąd
     } finally {
       setLoading(false);
     }

@@ -30,10 +30,6 @@ const Dashboard = () => {
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
 
     try {
       const res = await axios.get('http://localhost:3000/api/users/me', {
@@ -42,8 +38,9 @@ const Dashboard = () => {
       setUser(res.data);
     } catch (e) {
       console.error("Błąd pobierania profilu:", e);
+      // ProtectedRoute obsługuje przekierowanie, więc tutaj tylko czyścimy dane
       localStorage.removeItem('token');
-      navigate('/');
+      setUser(null);
     } finally {
       setLoading(false);
     }

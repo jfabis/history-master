@@ -11,8 +11,19 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": [
+      "jest",
+      "node"
+    ]
   },
-  "include": ["src/**/*", "prisma/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "include": [
+    "src/**/*",
+    "prisma/**/*",
+    "__tests__/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

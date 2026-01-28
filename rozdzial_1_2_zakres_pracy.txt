@@ -1,0 +1,23 @@
+1.2. Zakres pracy
+
+Zakres niniejszej pracy obejmuje kompleksowy proces tworzenia aplikacji webowej, począwszy od analizy wymagań funkcjonalnych, przez projektowanie architektury systemu, aż po implementację funkcjonalności edukacyjnych. Praca składa się z kilku kluczowych obszarów tworzących funkcjonalne rozwiązanie edukacyjne.
+
+W ramach prac projektowych zostały zaprojektowane i zaimplementowane cztery główne moduły edukacyjne. Pierwszy z nich, Księga Wiedzy, realizuje funkcjonalność cyfrowych fiszek edukacyjnych. System umożliwia użytkownikom przeglądanie kart zawierających kluczowe informacje historyczne, takie jak daty, pojęcia, terminy oraz postacie. Mechanizm przewracania kart z animacją 3D symuluje fizyczne fiszki. Każda karta prezentuje informacje w sposób zwięzły, ułatwiający ich przyswojenie.
+
+Drugi moduł to Wielki Test, który umożliwia użytkownikom sprawdzanie wiedzy poprzez system pytań wielokrotnego wyboru. Pytania zostały skategoryzowane według tematów historycznych oraz poziomów trudności. System charakteryzuje się adaptacyjnym doborem trudności pytań na podstawie historii odpowiedzi użytkownika przechowywanej w tabeli UserAnswer. Po każdej odpowiedzi użytkownik otrzymuje natychmiastowy feedback zawierający informację o poprawności oraz szczegółowe wyjaśnienie wraz z kontekstem historycznym.
+
+Trzeci komponent funkcjonalny stanowi Oś Czasu, która prezentuje interaktywną wizualizację chronologii kluczowych wydarzeń historycznych. Moduł wykorzystuje animacje oparte na bibliotece Framer Motion, tworząc dynamiczne doświadczenie użytkownika. Wydarzenia są reprezentowane jako interaktywne markery, które po najechaniu myszą wyświetlają szczegółowe informacje w dymkach kontekstowych z efektem magnifying dock.
+
+Czwarty moduł wykorzystuje możliwości sztucznej inteligencji do generowania obrazów historycznych i został podzielony na trzy podtryby. Detektyw Czasu wymaga odgadnięcia epoki na podstawie wygenerowanego przez AI obrazu (50 XP za poprawną odpowiedź). Analiza Bitwy prezentuje wizualizacje słynnych bitew, gdzie zadaniem użytkownika jest określenie zwycięzcy (100 XP). Stroje przez Wieki koncentruje się na historii mody, prezentując charakterystyczne stroje z różnych epok wraz z kontekstem kulturowym (30 XP).
+
+Znaczącą część pracy stanowi implementacja backendu z wykorzystaniem Node.js oraz Express.js. Backend odpowiada za obsługę logiki biznesowej, komunikację z bazą danych PostgreSQL poprzez Prisma ORM oraz integrację z Google Vertex AI. Architektura RESTful API została podzielona na dziewięć modułów: auth, drill-practice, study, timeline, users, ai, battles, costumes oraz gamification. System został wyposażony w middleware odpowiedzialne za autentykację poprzez Passport.js, zabezpieczenia poprzez Helmet oraz logowanie aktywności.
+
+Frontend aplikacji został zrealizowany przy użyciu React 18 oraz Vite jako bundlera, co zapewnia szybki hot module replacement. Styling wykonano z wykorzystaniem Tailwind CSS oraz Framer Motion do animacji. Zarządzanie stanem odbywa się poprzez React Query (TanStack Query), które optymalizuje cache'owanie danych. Aplikacja jest responsywna, dostosowując się do różnych rozmiarów ekranów.
+
+Integralną częścią pracy jest system zarządzania użytkownikami. Zaimplementowano dwie metody logowania: tradycyjną z email oraz hasłem zabezpieczonym bcrypt (12 salt rounds), a także OAuth 2.0 z Google. System sesji został oparty o tokeny JWT z czasem życia 15 minut dla access tokenów oraz 7 dni dla refresh tokenów przechowywanych w bazie danych z możliwością rewokacji.
+
+Zakres pracy obejmuje również system progresji użytkowników bazujący na akumulacji punktów doświadczenia (XP) oraz systemie poziomów. System śledzi passę dni aktywności (currentStreak), całkowitą liczbę aktywnych dni (totalActiveDays) oraz współczynnik poprawnych odpowiedzi obliczany na podstawie tabeli UserAnswer.
+
+Istotnym elementem technicznym jest integracja z Google Vertex AI wykorzystującą model Imagen 3.0. Proces wymagał konfiguracji Google Cloud Service Account oraz implementacji ImageGeneratorAdapter komunikującego się z API. System śledzi wygenerowane obrazy w tabeli GeneratedAsset oraz cache'uje już wyświetlone scenariusze w localStorage.
+
+Praca zawiera dokumentację techniczną obejmującą diagramy związków encji oraz przypadków użycia w formacie PlantUML, specyfikację architektury systemu oraz instrukcje instalacji w pliku README.md. Dodatkowo opracowano podstawowy zestaw testów jednostkowych dla frontendu przy użyciu Vitest oraz Testing Library (5 plików testowych).

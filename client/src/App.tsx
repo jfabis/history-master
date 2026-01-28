@@ -8,6 +8,7 @@ import StudyMode from './pages/StudyMode';
 import TimelineMode from './pages/TimelineMode';
 import Profile from './pages/Profile';
 import AIMode from './pages/AIMode';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -16,13 +17,13 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/auth/success" element={<AuthSuccess />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-        <Route path="/drill" element={<DrillMode />} />
-        <Route path="/study" element={<StudyMode />} />
-        <Route path="/timeline" element={<TimelineMode />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/ai" element={<AIMode />} />
+        <Route path="/drill" element={<ProtectedRoute><DrillMode /></ProtectedRoute>} />
+        <Route path="/study" element={<ProtectedRoute><StudyMode /></ProtectedRoute>} />
+        <Route path="/timeline" element={<ProtectedRoute><TimelineMode /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/ai" element={<ProtectedRoute><AIMode /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
