@@ -59,6 +59,7 @@ const AIMode = () => {
     if (savedBattleIds) setSeenBattleIds(JSON.parse(savedBattleIds));
     if (savedCostumeIds) setSeenCostumeIds(JSON.parse(savedCostumeIds));
   }, []);
+  
 
   useEffect(() => {
     localStorage.setItem('seenScenarioIds', JSON.stringify(seenScenarioIds));
