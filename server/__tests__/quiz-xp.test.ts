@@ -1,9 +1,6 @@
-/**
- * Testy dla systemu XP w quizach
- */
+
 
 describe('Quiz XP System', () => {
-    // Wzór: 10 + (difficulty * 2)
 
     test('pytanie difficulty 0 daje 10 XP', () => {
         const xp = 10 + (0 * 2);

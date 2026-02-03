@@ -19,13 +19,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
             }
 
             try {
-                // Weryfikacja tokenu przez próbę pobrania danych użytkownika
                 await axios.get('http://localhost:3000/api/users/me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setIsAuthenticated(true);
             } catch (error) {
-                // Token nieprawidłowy lub wygasły
                 localStorage.removeItem('token');
                 setIsAuthenticated(false);
             }
@@ -34,7 +32,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         verifyAuth();
     }, []);
 
-    // Ładowanie - pokazuj loader
     if (isAuthenticated === null) {
         return (
             <div className="min-h-screen bg-[#f0e6d2] flex items-center justify-center">
@@ -43,12 +40,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         );
     }
 
-    // Nieautoryzowany - przekieruj na login
     if (!isAuthenticated) {
         return <Navigate to="/" replace />;
     }
 
-    // Autoryzowany - renderuj chroniony komponent
     return <>{children}</>;
 };
 

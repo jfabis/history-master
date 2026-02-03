@@ -1,7 +1,4 @@
-/**
- * Minimalny test dla backendu
- * Weryfikuje podstawową funkcjonalność testową
- */
+
 
 describe('Backend Setup', () => {
     test('podstawowy test matematyczny działa', () => {

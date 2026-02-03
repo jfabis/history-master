@@ -26,10 +26,10 @@ function TimelineItem({ mouseX, item }: { mouseX: MotionValue, item: any }) {
       style={{ width }}
       className="relative aspect-square rounded-full border-[3px] border-[#4a3b2a] shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center cursor-pointer shrink-0 z-10 group overflow-visible bg-gradient-to-br from-[#e6dcc3] via-[#c5a059] to-[#8b7355]"
     >
-      {/* Efekt połysku (szkło/klejnot) */}
+      {}
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/40 rounded-full pointer-events-none overflow-hidden"></div>
 
-      {/* Wewnętrzny pierścień ozdobny */}
+      {}
       <div className="absolute inset-[3px] border border-[#5c4d3c]/40 rounded-full pointer-events-none"></div>
 
       <motion.span
@@ -39,18 +39,18 @@ function TimelineItem({ mouseX, item }: { mouseX: MotionValue, item: any }) {
         {item.year}
       </motion.span>
 
-      {/* DYMEK Z DETALAMI (Wyskakuje nad datą) */}
+      {}
       <motion.div
         style={{ opacity, y: -250, x: '-50%', scale: opacity }}
         className="absolute left-1/2 w-80 bg-[#fdfbf7] p-6 rounded-sm border-2 border-[#8b1e1e] shadow-[0_20px_60px_rgba(0,0,0,0.6)] pointer-events-none z-50 origin-bottom font-serif text-left"
       >
-        {/* Dekoracyjne narożniki dymka */}
+        {}
         <div className="absolute top-1 left-1 w-3 h-3 border-t border-l border-[#8b1e1e]"></div>
         <div className="absolute top-1 right-1 w-3 h-3 border-t border-r border-[#8b1e1e]"></div>
         <div className="absolute bottom-1 left-1 w-3 h-3 border-b border-l border-[#8b1e1e]"></div>
         <div className="absolute bottom-1 right-1 w-3 h-3 border-b border-r border-[#8b1e1e]"></div>
 
-        {/* Strzałka dymka */}
+        {}
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-[#fdfbf7] border-b-2 border-r-2 border-[#8b1e1e] rotate-45"></div>
 
         <div className="flex justify-between items-center mb-2 border-b border-[#c5a059]/50 pb-2">
@@ -100,7 +100,7 @@ const TimelineMode = () => {
   return (
     <div className="min-h-screen bg-[#2c241b] text-[#f3e5ab] font-serif overflow-hidden flex flex-col relative">
 
-      {/* Tło - Mapa */}
+      {}
       <div className="absolute inset-0 z-0 opacity-30 pointer-events-none"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2074&auto=format&fit=crop')`,
@@ -110,7 +110,7 @@ const TimelineMode = () => {
       />
       <div className="absolute inset-0 bg-[#2c241b]/40 mix-blend-multiply pointer-events-none"></div>
 
-      {/* NAVBAR */}
+      {}
       <nav className="p-6 flex items-center justify-between border-b border-[#c5a059]/30 relative z-20 bg-[#2c241b]/80 backdrop-blur-md shadow-lg">
         <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[#c5a059] hover:text-[#f3e5ab] font-bold uppercase tracking-widest text-sm cursor-pointer transition-colors group">
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Powrót
@@ -122,16 +122,13 @@ const TimelineMode = () => {
         <Clock className="w-6 h-6 text-[#c5a059]" />
       </nav>
 
-      {/* --- KONTENER PRZEWIJANIA --- */}
+      {}
       <div className="flex-1 flex flex-col justify-center overflow-x-auto overflow-y-visible custom-scrollbar relative cursor-grab active:cursor-grabbing">
 
-        {/* Główna Linia Pozioma (Oś) - Idealnie wyśrodkowana */}
+        {}
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#5c4d3c] min-w-[300vw] z-0 shadow-sm border-t border-b border-[#2c241b]"></div>
 
-        {/* --- STREFA AKTYWNA (HITBOX) --- 
-             pl-20: Start od lewej (nie od środka).
-             pr-[50vw]: Bufor na końcu.
-         */}
+        {}
         <div
           className="flex items-center gap-6 pl-20 pr-[50vw] min-w-max h-[450px] z-10"
           onMouseMove={(e) => mouseX.set(e.clientX)}

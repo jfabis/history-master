@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Rozpoczynam seedowanie bazy wiedzy HistoryMaster...');
 
-  // --- 1. DEFINICJA DANYCH DLA WSZYSTKICH TEMATÓW (Min. 7 fiszek i 7 pytań) ---
+
 
   const allTopicsData = [
     {
@@ -198,11 +198,11 @@ async function main() {
     },
   ];
 
-  // --- 2. AKTUALIZACJA TEMATÓW (UPSERT + REPLACE CHILDREN) ---
+
 
   for (const topicData of allTopicsData) {
     console.log(`Processing topic: ${topicData.name}...`);
-    // Najpierw tworzymy lub aktualizujemy sam temat
+
     const topic = await prisma.topic.upsert({
       where: { name: topicData.name },
       update: {
@@ -216,11 +216,11 @@ async function main() {
       }
     });
 
-    // Teraz USUWAMY stare karty i pytania (wymuszenie pełnej aktualizacji)
-    await prisma.studyCard.deleteMany({ where: { topicId: topic.id } });
-    await prisma.question.deleteMany({ where: { topicId: topic.id } }); // Zadziała, bo mamy onDelete: Cascade w UserAnswer
 
-    // TWORZYMY nowe
+    await prisma.studyCard.deleteMany({ where: { topicId: topic.id } });
+    await prisma.question.deleteMany({ where: { topicId: topic.id } });
+
+
     await prisma.studyCard.createMany({
       data: topicData.cards.map(c => ({ topicId: topic.id, ...c, type: c.type as any }))
     });
@@ -230,7 +230,7 @@ async function main() {
     });
   }
 
-  // --- 3. SEEDOWANIE OSI CZASU, BITEW I STROJÓW (BEZ ZMIAN) ---
+
   console.log('⏳ Tworzenie Wielkiej Osi Czasu...');
   try { await prisma.timelineEvent.deleteMany({}); } catch (e) { }
 
@@ -630,49 +630,49 @@ async function main() {
 
   await prisma.timeDetectiveScenario.createMany({
     data: [
-      // STAROŻYTNY EGIPT
+
       { era: 'Starożytny Egipt', description: 'Rolnictwo nad Nilem', prompt: 'Historical scene from Ancient Egypt: Egyptian farmers harvesting wheat near the Nile River, traditional white schenti clothes, Great Pyramids of Giza clearly visible in the background, sunny day. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Starożytny Egipt', description: 'Targ w Tebach', prompt: 'Historical scene from Ancient Egypt: Busy marketplace in Thebes with Sphinx avenue in background, people wearing egyptian makeup and linen clothes, selling papyrus and pottery, hieroglyphs on walls. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Starożytny Egipt', description: 'Skrybowie w świątyni', prompt: 'Historical scene from Ancient Egypt: Scribes writing on papyrus scrolls inside a temple with massive columns painted with hieroglyphs, distinct Ancient Egyptian architectural style, pharaoh statue. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Starożytny Egipt', description: 'Królewska barka', prompt: 'Historical scene from Ancient Egypt: Royal barge sailing on the Nile, golden decorations, distinct Egyptian style sails, palm trees on river bank, sunny Egyptian landscape. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // STAROŻYTNY RZYM
+
       { era: 'Starożytny Rzym', description: 'Forum Romanum', prompt: 'Historical scene from Ancient Rome: Citizens walking in the Roman Forum, men in white togas, Roman senators, marble temples with corinthian columns, Colosseum visible in the distance. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Starożytny Rzym', description: 'Uczta rzymska', prompt: 'Historical scene from Ancient Rome: Roman street feast using triclinium (reclining dining), people eating grapes and drinking wine from ceramic jugs, women in stola dresses, Roman villa architecture. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Starożytny Rzym', description: 'Patrol legionistów', prompt: 'Historical scene from Ancient Rome: Roman soldiers (Legionaries) in lorica segmentata armor patrolling a paved stone road, red tunics, rectangular scutum shields, aqueduct in background. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Starożytny Rzym', description: 'Termy rzymskie', prompt: 'Historical scene from Ancient Rome: Inside a Roman Bathhouse (Thermae), marble statues, mosaic floors, people relaxing in togas, classic Roman arches and architecture. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // ŚREDNIOWIECZNA JAPONIA
+
       { era: 'Średniowieczna Japonia', description: 'Samuraj i wiśnie', prompt: 'Historical scene from Medieval Japan: Samurai walking through a village with Cherry Blossom (Sakura) trees falling, traditional wooden japanese architecture, Katana sword at waist, Mount Fuji in distance. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Średniowieczna Japonia', description: 'Gejsze w Kyoto', prompt: 'Historical scene from Medieval Japan: Geishas in colorful Kimonos walking on a wooden bridge in Kyoto, paper umbrellas, lanterns, traditional Japanese garden with pagoda. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Średniowieczna Japonia', description: 'Ogród Zen', prompt: 'Historical scene from Medieval Japan: Zen garden with raked gravel and bonsai trees, Buddhist monk in robes meditating, wooden temple with curved roof, peaceful Japanese atmosphere. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Średniowieczna Japonia', description: 'Pola ryżowe', prompt: 'Historical scene from Medieval Japan: Rice paddy workers in conical straw hats, traditional Japanese farmhouse with thatched roof, misty mountains, classic feudal Japan landscape. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // WIKINGOWIE
+
       { era: 'Wikingowie', description: 'Drakkary w fiordzie', prompt: 'Historical scene from Viking Age: Viking Longships (Drakkar) docked in a fjord, warriors with round wooden shields and axes, wooden village with smoke rising, dramatic cloudy sky. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Wikingowie', description: 'Uczta w długim domu', prompt: 'Historical scene from Viking Age: Viking feast inside a wooden Longhouse, warriors drinking mead from horns, wearing furs and heavy cloaks, fire in central hearth, runic carvings on wood. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Wikingowie', description: 'Kowal wikiński', prompt: 'Historical scene from Viking Age: Norse blacksmith forging an axe, wearing beard and fur tunic, wooden stave church visible in background, snowy Scandinavian landscape. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Wikingowie', description: 'Handel na plaży', prompt: 'Historical scene from Viking Age: Vikings trading on a beach, furs and amber, longships pulled onto sand, rugged warriors with braided beards, northern lights in sky. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // II WOJNA ŚWIATOWA
+
       { era: 'II Wojna Światowa', description: 'Willys Jeep', prompt: 'Historical scene from World War 2: Soldiers in 1940s uniforms driving a Willys Jeep through a ruined European town, vintage American star on vehicle, rubble, World War 2 era signs. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'II Wojna Światowa', description: 'Cywile przy radiu', prompt: 'Historical scene from World War 2: Civilian family in 1940s clothing listening to vintage radio, "Keep Calm and Carry On" poster on wall, gas masks hanging on coat rack, wartime atmosphere. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'II Wojna Światowa', description: 'Odpoczynek GI', prompt: 'Historical scene from World War 2: American GIs taking a break in a French village, smoking cigarettes, holding M1 Garand rifles, vintage 1940s surroundings, tank parked nearby. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'II Wojna Światowa', description: 'Szpital polowy', prompt: 'Historical scene from World War 2: Field hospital tents with Red Cross symbol, nurses in WW2 era uniforms, vintage ambulance truck, soldiers resting, wartime camp. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // DZIKI ZACHÓD
+
       { era: 'Dziki Zachód', description: 'Saloon', prompt: 'Historical scene from Wild West: Classic Western Saloon exterior, wooden facade, cowboys tied horses to rail, dusty main street, people in Stetsons and boots, tumbleweed. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Dziki Zachód', description: 'Stado bydła', prompt: 'Historical scene from Wild West: Cowboys herding cattle on the open prairie, wearing leather chaps and cowboy hats, riding horses, lasso rope, monumental scenery like Monument Valley. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Dziki Zachód', description: 'Biuro szeryfa', prompt: 'Historical scene from Wild West: Sheriff standing in front of Jail office, wearing metal star badge and gun belt with revolver, wooden boardwalk, wanted posters on wall. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Dziki Zachód', description: 'Parowóz na stacji', prompt: 'Historical scene from Wild West: Steam Train (Locomotive) arriving at a wooden station, steam and smoke, passengers in Victorian western clothing, luggage, desert landscape. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // CZASY NAPOLEOŃSKIE
+
       { era: 'Czasy Napoleońskie', description: 'Marsz piechoty', prompt: 'Historical scene from Napoleonic Era: French Army soldiers in blue uniforms and shako hats marching, holding muskets with bayonets, tricolor flag, Napoleon on white horse in distance. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Czasy Napoleońskie', description: 'Bal w pałacu', prompt: 'Historical scene from Napoleonic Era: Elegant ball in a 19th century palace, ladies in Empire style dresses, men in military gala uniforms with gold embroidery, crystal chandeliers. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Czasy Napoleońskie', description: 'Huzar na koniu', prompt: 'Historical scene from Napoleonic Era: Cavalry officer (Hussar) on horse, colorful uniform with braids (dolman), sabre, snowy landscape (Retreat from Moscow context), 19th century painting style. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Czasy Napoleońskie', description: 'Artyleria', prompt: 'Historical scene from Napoleonic Era: Cannon crew preparing artillery piece, wearing bicorne hats, gunpowder smoke, wheel carriages, battlefield background. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
 
-      // POLSKA PIASTÓW
+
       { era: 'Polska Piastów', description: 'Gród drewniany', prompt: 'Historical scene from Medieval Poland: Medieval wooden stronghold (Gród) with palisade walls, Slavic warriors in chainmail and nasal helmets guarding gate, wooden huts inside. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Polska Piastów', description: 'Mysia Wieża', prompt: 'Historical scene from Medieval Poland: Legendary King Popiel\'s tower (Mysia Wieża) context, wooden Slavic architecture, people in linen tunics, Kruszwica lake background. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },
       { era: 'Polska Piastów', description: 'Drużyna książęca', prompt: 'Historical scene from Medieval Poland: Early Polish knighthood (Druzhina) riding horses through forest, round shields with simple patterns, spears, medieval Slavic clothing. Photorealistic style, highly detailed, 8K, cinematic lighting, museum quality.' },

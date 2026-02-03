@@ -33,7 +33,6 @@ export class DrillController {
 
       const sanitizedQuestions = shuffled.map(q => {
         const { correctAnswer, ...rest } = q;
-        // Dodaj wartość XP do każdego pytania
         const xpValue = 10 + (q.difficulty * 2);
         return { ...rest, xpValue };
       });
@@ -46,8 +45,7 @@ export class DrillController {
 
   static async submitAnswer(req: Request, res: Response) {
     const { questionId, selectedAnswer } = req.body;
-    // @ts-ignore - user jest dodawany przez passport
-    const userId = req.user?.id;
+    const userId = (req.user as any)?.id;
 
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 

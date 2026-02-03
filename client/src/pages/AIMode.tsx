@@ -3,13 +3,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Sparkles, Swords, Shirt, HelpCircle, ImageOff, CheckCircle, XCircle, BrainCircuit } from 'lucide-react';
 
-// Typy trybów
 type GameMode = 'time_detective' | 'battle' | 'costume';
 
-// Dane dla różnych trybów
 
 
-// Interfejs Bitwy z bazy danych
 interface Battle {
   id: string;
   name: string;
@@ -19,11 +16,10 @@ interface Battle {
   forces: string;
   description: string;
   prompt: string;
-  options: string[]; // Dynamiczne opcje zwycięzców/przegranych
+  options: string[]; 
   poolReset?: boolean;
 }
 
-// Interfejs Stroju z bazy danych
 interface Costume {
   id: string;
   name: string;
@@ -37,30 +33,23 @@ interface Costume {
 const AIMode = () => {
   const navigate = useNavigate();
 
-  // Stan wspólny
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
   const [gameState, setGameState] = useState<'START' | 'LOADING' | 'PLAYING' | 'RESULT'>('START');
   const [imageUrl, setImageUrl] = useState('');
   const [userScore, setUserScore] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Stan dla Detektywа Czasu
-  // Stan dla Detektywа Czasu
   const [correctEra, setCorrectEra] = useState('');
   const [availableEras, setAvailableEras] = useState<string[]>([]);
   const [seenScenarioIds, setSeenScenarioIds] = useState<string[]>([]);
   const [roundXP, setRoundXP] = useState(0);
 
-  // Stan dla Bitwy
   const [currentBattle, setCurrentBattle] = useState<Battle | null>(null);
   const [seenBattleIds, setSeenBattleIds] = useState<string[]>([]);
 
-  // Stan dla Stroju
   const [currentCostume, setCurrentCostume] = useState<Costume | null>(null);
   const [seenCostumeIds, setSeenCostumeIds] = useState<string[]>([]);
 
-  // ==================== PERSYSTENCJA W LOCALSTORAGE ====================
-  // Wczytaj historię widzianych scenariuszy przy starcie
   useEffect(() => {
     const savedScenarioIds = localStorage.getItem('seenScenarioIds');
     const savedBattleIds = localStorage.getItem('seenBattleIds');
@@ -71,7 +60,6 @@ const AIMode = () => {
     if (savedCostumeIds) setSeenCostumeIds(JSON.parse(savedCostumeIds));
   }, []);
 
-  // Zapisuj zmiany do localStorage
   useEffect(() => {
     localStorage.setItem('seenScenarioIds', JSON.stringify(seenScenarioIds));
   }, [seenScenarioIds]);
@@ -86,7 +74,6 @@ const AIMode = () => {
 
 
 
-  // ==================== DETEKTYW CZASU ====================
   const startTimeDetective = async () => {
     setGameState('LOADING');
     setErrorMessage('');
@@ -95,7 +82,6 @@ const AIMode = () => {
       const token = localStorage.getItem('token');
       const excludeQuery = seenScenarioIds.length > 0 ? `?exclude=${seenScenarioIds.join(',')}` : '';
 
-      // 1. Pobierz losowy scenariusz z bazy
       const scenarioRes = await axios.get(`http://localhost:3000/api/time-detective/random${excludeQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -105,17 +91,15 @@ const AIMode = () => {
       setCorrectEra(scenario.era);
       setAvailableEras(allEras);
 
-      // Aktualizacja historii widzianych scenariuszy
       if (poolReset) {
         setSeenScenarioIds([scenario.id]);
       } else {
         setSeenScenarioIds(prev => [...prev, scenario.id]);
       }
 
-      // 2. Wygeneruj obraz na podstawie promptu z bazy
       const res = await axios.post('http://localhost:3000/api/ai/generate',
         {
-          era: scenario.era, // Dla logów
+          era: scenario.era, 
           prompt: scenario.prompt,
           mode: 'time_detective'
         },
@@ -131,7 +115,6 @@ const AIMode = () => {
     }
   };
 
-  // Helper do przyznawania XP
   const grantXP = async (amount: number, reason: string) => {
     try {
       const token = localStorage.getItem('token');
@@ -156,7 +139,6 @@ const AIMode = () => {
     setGameState('RESULT');
   };
 
-  // ==================== BITWA ====================
   const startBattle = async () => {
     setGameState('LOADING');
     setErrorMessage('');
@@ -164,10 +146,8 @@ const AIMode = () => {
     try {
       const token = localStorage.getItem('token');
 
-      // Budujemy query params z excludeIds
       const excludeQuery = seenBattleIds.length > 0 ? `?exclude=${seenBattleIds.join(',')}` : '';
 
-      // 1. Pobierz losową bitwę z bazy danych (z wykluczeniem powtórzeń)
       const battleRes = await axios.get(`http://localhost:3000/api/battles/random${excludeQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -175,21 +155,19 @@ const AIMode = () => {
       const battleData = battleRes.data;
       setCurrentBattle(battleData);
 
-      // Aktualizacja historii widzianych bitew
       if (battleData.poolReset) {
         setSeenBattleIds([battleData.id]);
       } else {
         setSeenBattleIds(prev => [...prev, battleData.id]);
       }
 
-      // 2. Wygeneruj obraz używając profesjonalnego promptu z bazy
       const aiRes = await axios.post('http://localhost:3000/api/ai/generate',
         {
-          era: 'Historyczna bitwa', // Tylko dla logów
+          era: 'Historyczna bitwa', 
           subject: battleData.name,
           style: 'Epic battlefield scene',
           mode: 'battle',
-          prompt: battleData.prompt // Przekazujemy PEŁNY prompt Matejki
+          prompt: battleData.prompt 
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -215,7 +193,6 @@ const AIMode = () => {
     setGameState('RESULT');
   };
 
-  // ==================== STRÓJ ====================
   const startCostume = async () => {
     setGameState('LOADING');
     setErrorMessage('');
@@ -223,10 +200,8 @@ const AIMode = () => {
     try {
       const token = localStorage.getItem('token');
 
-      // Budujemy query params z excludeIds
       const excludeQuery = seenCostumeIds.length > 0 ? `?exclude=${seenCostumeIds.join(',')}` : '';
 
-      // 1. Pobierz losowy strój z bazy
       const res = await axios.get(`http://localhost:3000/api/costumes/random${excludeQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -234,21 +209,19 @@ const AIMode = () => {
       const costumeData = res.data;
       setCurrentCostume(costumeData);
 
-      // Aktualizacja historii
       if (costumeData.poolReset) {
         setSeenCostumeIds([costumeData.id]);
       } else {
         setSeenCostumeIds(prev => [...prev, costumeData.id]);
       }
 
-      // 2. Generuj obraz AI z prompta
       const aiRes = await axios.post('http://localhost:3000/api/ai/generate',
         {
-          era: costumeData.era, // Dla logów
+          era: costumeData.era, 
           subject: costumeData.name,
           style: 'Museum-quality costume documentation',
           mode: 'costume',
-          prompt: costumeData.prompt // PEŁNY PROMPT
+          prompt: costumeData.prompt 
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -263,7 +236,6 @@ const AIMode = () => {
     }
   };
 
-  // ==================== RESET ====================
   const resetGame = () => {
     setSelectedMode(null);
     setGameState('START');
@@ -277,7 +249,6 @@ const AIMode = () => {
     else if (selectedMode === 'costume') startCostume();
   };
 
-  // ==================== WYBÓR TRYBU ====================
   if (!selectedMode) {
     return (
       <div className="min-h-screen bg-[#1a140e] font-serif text-[#f3e5ab] flex flex-col">
@@ -293,21 +264,21 @@ const AIMode = () => {
           <p className="text-[#8c7b75] mb-12 text-lg">Wybierz tryb gry:</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
-            {/* Detektyw Czasu */}
+            {}
             <div onClick={() => setSelectedMode('time_detective')} className="bg-[#2c241b] p-8 rounded border-2 border-[#c5a059] hover:border-[#f3e5ab] cursor-pointer transition-all group">
               <BrainCircuit className="w-12 h-12 text-[#c5a059] mb-4" />
               <h3 className="text-2xl font-cinzel font-bold mb-3">Detektyw Czasu</h3>
               <p className="text-sm text-[#8c7b75]">Zgadnij epokę na podstawie wygenerowanego obrazu historycznego</p>
             </div>
 
-            {/* Bitwa */}
+            {}
             <div onClick={() => setSelectedMode('battle')} className="bg-[#2c241b] p-8 rounded border-2 border-[#c5a059] hover:border-[#f3e5ab] cursor-pointer transition-all group">
               <Swords className="w-12 h-12 text-[#c5a059] mb-4" />
               <h3 className="text-2xl font-cinzel font-bold mb-3">Bitwa</h3>
               <p className="text-sm text-[#8c7b75]">Analiza taktyczna słynnych bitew historycznych</p>
             </div>
 
-            {/* Strój przez Wieki */}
+            {}
             <div onClick={() => setSelectedMode('costume')} className="bg-[#2c241b] p-8 rounded border-2 border-[#c5a059] hover:border-[#f3e5ab] cursor-pointer transition-all group">
               <Shirt className="w-12 h-12 text-[#c5a059] mb-4" />
               <h3 className="text-2xl font-cinzel font-bold mb-3">Strój przez Wieki</h3>
@@ -319,7 +290,6 @@ const AIMode = () => {
     );
   }
 
-  // ==================== GRA (wspólny layout) ====================
   const getModeTitle = () => {
     if (selectedMode === 'time_detective') return 'Detektyw Czasu';
     if (selectedMode === 'battle') return 'Analiza Bitwy';

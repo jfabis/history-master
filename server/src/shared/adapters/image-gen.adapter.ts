@@ -9,11 +9,9 @@ export class GoogleVertexAIAdapter {
   constructor() {
     let credentials;
 
-    // 1. Load credentials
     if (process.env.GOOGLE_CREDENTIALS_JSON) {
       try {
         credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-        // FIX: Sanitize private key - replace literal \n with actual newlines
         if (credentials.private_key) {
           credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
         }
@@ -26,18 +24,15 @@ export class GoogleVertexAIAdapter {
       try {
         credentials = require(path.join(__dirname, '../../../google-credentials.json'));
       } catch (e) {
-        // Ignorujemy błąd jeśli pliku nie ma (może działać tylko na ENV)
       }
     }
 
     if (!credentials) {
       console.error('[VertexAI] CRITICAL: No Google credentials found (ENV or file)');
-      // Pusty auth, to wywali błąd później przy próbie użycia, ale nie crashuje startu
       this.auth = new GoogleAuth();
     } else {
       this.projectId = credentials.project_id;
 
-      // 2. Initialize Auth with SANITIZED credentials
       this.auth = new GoogleAuth({
         credentials,
         scopes: ['https://www.googleapis.com/auth/cloud-platform'],

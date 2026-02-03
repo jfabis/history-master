@@ -57,7 +57,6 @@ const StudyMode = () => {
     try {
       const token = localStorage.getItem('token');
 
-      // Znajdź nazwę tematu
       const selectedTopic = topics.find(t => t.id === id);
       if (selectedTopic) {
         setCurrentTopicName(selectedTopic.name);
@@ -163,7 +162,7 @@ const StudyMode = () => {
   return (
     <div className="min-h-screen bg-[#2c241b] flex flex-col items-center justify-center p-4 font-serif relative overflow-hidden">
 
-      {/* --- Style CSS dla efektu 3D (Wstrzyknięte bezpośrednio) --- */}
+      
       <style>{`
         .flip-card-container {
           perspective: 1000px;
@@ -180,7 +179,7 @@ const StudyMode = () => {
           position: absolute;
           width: 100%;
           height: 100%;
-          -webkit-backface-visibility: hidden; /* Safari */
+          -webkit-backface-visibility: hidden; 
           backface-visibility: hidden;
           border-radius: 0.5rem;
         }
@@ -192,12 +191,12 @@ const StudyMode = () => {
         }
       `}</style>
 
-      {/* Tło tekstury */}
+      
       <div className="absolute inset-0 opacity-20 pointer-events-none"
         style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/dark-leather.png')` }}>
       </div>
 
-      {/* Nawigacja Powrotu */}
+      
       <button
         onClick={() => setSearchParams({})}
         className="absolute top-6 left-6 text-[#f3e5ab] flex gap-2 items-center hover:text-[#c5a059] transition-colors z-20 cursor-pointer"
@@ -206,22 +205,22 @@ const StudyMode = () => {
         <span className="uppercase tracking-widest text-sm font-bold">Wybór Tematu</span>
       </button>
 
-      {/* Nagłówek */}
+      
       <div className="text-center mb-8 z-10">
         <h2 className="text-3xl lg:text-4xl text-[#f3e5ab] font-bold tracking-widest mb-2 font-cinzel">{currentTopicName || 'Księga Wiedzy'}</h2>
         <p className="text-[#c5a059] uppercase tracking-widest text-xs">Karta {currentIndex + 1} z {cards.length}</p>
       </div>
 
-      {/* KONTENER KARTY (SCENA 3D) */}
+      
       <div className="relative w-full max-w-lg aspect-[3/4] md:aspect-[4/3] flip-card-container z-10">
 
-        {/* KARTA (OBIEKT OBROTOWY) */}
+        
         <div
           className={`flip-card-inner cursor-pointer shadow-2xl ${isFlipped ? 'flipped' : ''}`}
           onClick={() => setIsFlipped(!isFlipped)}
         >
 
-          {/* --- PRZÓD KARTY (PYTANIE / OPIS) --- */}
+          
           <div className="flip-card-front bg-[#f0e6d2] border-[6px] border-[#5c4d3c] flex flex-col items-center justify-center p-8 text-center shadow-lg">
             <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-[#8b1e1e]"></div>
             <div className="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-[#8b1e1e]"></div>
@@ -236,7 +235,7 @@ const StudyMode = () => {
               {getTypeLabel(currentCard.type)}
             </span>
 
-            {/* Tutaj wyświetlamy backContent (czyli opis/zagadkę) */}
+            
             <h3 className="text-xl md:text-2xl font-serif italic text-[#2c241b] leading-relaxed drop-shadow-sm px-4">
               "{currentCard.backContent}"
             </h3>
@@ -247,7 +246,7 @@ const StudyMode = () => {
             </div>
           </div>
 
-          {/* --- TYŁ KARTY (ODPOWIEDŹ) --- */}
+          
           <div className="flip-card-back bg-[#1a140e] border-[6px] border-[#c5a059] flex flex-col items-center justify-center p-8 text-center shadow-lg">
             <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
               <BookOpen size={150} color="#f3e5ab" />
@@ -257,7 +256,7 @@ const StudyMode = () => {
               <h4 className="text-[#c5a059] font-bold uppercase tracking-widest mb-6 border-b border-[#c5a059]/30 pb-2 inline-block">
                 Odpowiedź
               </h4>
-              {/* Tutaj wyświetlamy frontContent (czyli hasło/nazwę) */}
+              
               <p className="text-3xl md:text-5xl text-[#f3e5ab] leading-tight font-cinzel font-bold drop-shadow-md">
                 {currentCard.frontContent}
               </p>
@@ -267,7 +266,7 @@ const StudyMode = () => {
         </div>
       </div>
 
-      {/* PASEK STEROWANIA */}
+      
       <div className="mt-10 flex items-center gap-8 z-10">
         <button
           onClick={handlePrev}
@@ -288,7 +287,7 @@ const StudyMode = () => {
         </button>
       </div>
 
-      {/* Progress Bar na dole */}
+      
       <div className="absolute bottom-0 left-0 h-2 bg-[#8b1e1e]" style={{ width: `${((currentIndex + 1) / cards.length) * 100}%`, transition: 'width 0.3s' }}></div>
 
     </div>

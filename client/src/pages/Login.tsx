@@ -60,7 +60,7 @@ const Login = () => {
   return (
     <div className="min-h-screen w-full flex relative overflow-hidden bg-[#e8dec0] font-serif">
 
-      {/* TŁO */}
+      {}
       <div className="absolute inset-0 z-0 opacity-10 pointer-events-none"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2074&auto=format&fit=crop')`,
@@ -69,7 +69,7 @@ const Login = () => {
         }}
       />
 
-      {/* LEWA STRONA */}
+      {}
       <div className="hidden lg:flex lg:w-3/5 relative justify-center items-center overflow-hidden border-r-4 border-[#5c4d3c] shadow-2xl">
         <div className="absolute inset-0">
           <img
@@ -97,7 +97,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* PRAWA STRONA */}
+      {}
       <div className="w-full lg:w-2/5 flex items-center justify-center p-8 relative z-10 overflow-y-auto">
         <div className="max-w-md w-full">
 
@@ -114,7 +114,7 @@ const Login = () => {
               <p className="mt-2 text-[#5c4d3c] italic">Zaloguj się, aby otworzyć księgi.</p>
             </div>
 
-            {/* Formularz Email/Hasło */}
+            {}
             <form onSubmit={handleLocalLogin} className="space-y-4 mb-6">
               <div>
                 <label className="block text-xs font-bold text-[#5c4d3c] uppercase mb-1">Email</label>
@@ -158,7 +158,7 @@ const Login = () => {
               <div className="flex-grow border-t border-[#d4c5a6]"></div>
             </div>
 
-            {/* Przycisk Google */}
+            {}
             <button
               onClick={handleGoogleLogin}
               className="mt-4 w-full flex items-center justify-center gap-3 py-3 bg-white border-2 border-[#d4c5a6] hover:border-[#c5a059] text-[#5c4d3c] font-bold transition-all shadow-sm hover:bg-[#fffcf5]"

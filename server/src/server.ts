@@ -20,7 +20,7 @@ const startServer = async () => {
       ################################################
       🚀 [3/3] SERWER GOTOWY NA PORCIE: ${PORT} 🚀
       ################################################
-      ➜ Backend:  http://localhost:${PORT}
+      ➜ Backend:  http:
       ➜ Baza:     Połączona (127.0.0.1:5432)
       `);
     });
@@ -30,4 +30,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
+
+export { startServer, app };

@@ -60,7 +60,6 @@ const DrillMode = () => {
     try {
       const token = localStorage.getItem('token');
 
-      // Znajdź nazwę tematu
       const selectedTopic = topics.find(t => t.id === topicId);
       if (selectedTopic) {
         setCurrentTopicName(selectedTopic.name);
@@ -70,7 +69,6 @@ const DrillMode = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setQuestions(res.data);
-      // Oblicz maksymalne możliwe XP
       const maxXP = res.data.reduce((sum: number, q: Question) => sum + q.xpValue, 0);
       setMaxPossibleXP(maxXP);
       setStage('QUIZ');
@@ -181,18 +179,14 @@ const DrillMode = () => {
 
               <div className="space-y-4">
                 {questions[currentIndex].options.map((option) => {
-                  // Określ kolor dla każdej opcji
                   let colorClass = 'border-[#d4c5a6] hover:border-[#8b1e1e] hover:bg-[#fff9f0] text-[#2c241b]';
 
                   if (feedback) {
                     if (option === feedback.correctAnswer) {
-                      // Poprawna odpowiedź - zawsze zielona
                       colorClass = 'bg-green-50 border-green-600 text-green-800';
                     } else if (option === selectedAnswer && !feedback.correct) {
-                      // Wybrana zła odpowiedź - czerwona
                       colorClass = 'bg-red-50 border-red-600 text-red-800';
                     } else {
-                      // Pozostałe - przygaszone
                       colorClass = 'opacity-50 border-[#d4c5a6]';
                     }
                   }

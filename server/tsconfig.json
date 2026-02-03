@@ -12,6 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": false,
     "resolveJsonModule": true,
+    "isolatedModules": true,
     "types": [
       "jest",
       "node"

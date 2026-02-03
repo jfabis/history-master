@@ -1,7 +1,5 @@
-/**
- * Testy dla localStorage persistence (AI Mode)
- */
-import { describe, it, expect, beforeEach } from 'vitest';
+
+
 
 describe('localStorage - Seen Scenarios', () => {
     beforeEach(() => {
@@ -32,7 +30,6 @@ describe('localStorage - Seen Scenarios', () => {
         const full = ['id1', 'id2', 'id3', 'id4', 'id5'];
         localStorage.setItem('seenScenarioIds', JSON.stringify(full));
 
-        // Symulacja pool reset
         localStorage.setItem('seenScenarioIds', JSON.stringify(['id6']));
 
         const retrieved = JSON.parse(localStorage.getItem('seenScenarioIds') || '[]');

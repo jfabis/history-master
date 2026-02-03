@@ -10,19 +10,16 @@ export class AuthController {
 
   private static async generateTokens(user: { id: string, email: string, displayName?: string | null }) {
     const accessTokenSecret = process.env.JWT_SECRET || 'secret';
-    // Access Token - krótki czas życia (np. 15min, tu damy 1h dla wygody dev)
     const accessToken = jwt.sign(
       { id: user.id, email: user.email },
       accessTokenSecret,
       { expiresIn: '1h' }
     );
 
-    // Refresh Token - długi czas życia (np. 30 dni)
     const refreshTokenString = crypto.randomBytes(40).toString('hex');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30); // +30 dni
+    expiresAt.setDate(expiresAt.getDate() + 30); 
 
-    // Zapisz do bazy
     await prisma.refreshToken.create({
       data: {
         token: refreshTokenString,
@@ -43,7 +40,6 @@ export class AuthController {
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-      // Fix CSP Error: Allow inline scripts
       res.setHeader("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
 
       const html = `
@@ -59,7 +55,7 @@ export class AuthController {
               h1 { font-size: 24px; margin-bottom: 10px; }
               p { color: #5c4d3c; margin-bottom: 20px; }
               .error { color: #d32f2f; font-weight: bold; background: #ffebee; padding: 10px; border-radius: 4px; margin-top: 20px; }
-              /* Ukryty przycisk, pokazujący się tylko w razie problemów (po 3s) */
+              
               #manual-btn { display: none; background: #8b1e1e; color: #fff; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; }
               #manual-btn:hover { background: #5c1414; }
             </style>
@@ -77,7 +73,6 @@ export class AuthController {
               
               function sendToken() {
                 if (window.opener) {
-                  // Używamy wildcard '*' dla maksymalnej kompatybilności
                   window.opener.postMessage({ 
                     type: 'GOOGLE_AUTH_SUCCESS', 
                     token: accessToken,
@@ -92,7 +87,6 @@ export class AuthController {
 
               window.onload = sendToken;
               
-              // Pokaż przycisk awaryjny po 3 sekundach
               setTimeout(() => {
                 document.getElementById('manual-btn').style.display = 'block';
               }, 3000);
@@ -168,24 +162,18 @@ export class AuthController {
     }
 
     try {
-      // 1. Znajdź token w bazie
       const savedToken = await prisma.refreshToken.findUnique({
         where: { token: refreshToken },
         include: { user: true }
       });
 
-      // 2. Weryfikacja
       if (!savedToken || savedToken.revoked || new Date() > savedToken.expiresAt) {
-        // Opcjonalnie: Jeśli token wygasł lub nie istnieje, można go usunąć
         return res.status(403).json({ error: 'Invalid or expired refresh token' });
       }
 
-      // 3. Generuj nową parę (Rotacja tokenów - dla bezpieczeństwa)
-      // Revoke starego tokena (lub jego usunięcie)
       await prisma.refreshToken.update({
         where: { id: savedToken.id },
-        data: { revoked: true } // Oznaczamy stary jako zużyty
-        // Alternatywnie: await prisma.refreshToken.delete({ where: { id: savedToken.id } });
+        data: { revoked: true } 
       });
 
       const newTokens = await AuthController.generateTokens(savedToken.user);

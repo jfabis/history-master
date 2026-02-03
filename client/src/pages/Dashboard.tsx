@@ -38,7 +38,6 @@ const Dashboard = () => {
       setUser(res.data);
     } catch (e) {
       console.error("Błąd pobierania profilu:", e);
-      // ProtectedRoute obsługuje przekierowanie, więc tutaj tylko czyścimy dane
       localStorage.removeItem('token');
       setUser(null);
     } finally {
@@ -54,10 +53,10 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-[#f0e6d2] font-serif text-[#2c241b] relative">
 
-      {/* Tło tekstury */}
+      {}
       <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
 
-      {/* NAVBAR */}
+      {}
       <nav className="bg-[#2c241b] text-[#e6dcc3] shadow-lg sticky top-0 z-50 border-b-4 border-[#c5a059]">
         <div className="w-full px-6 lg:px-12">
           <div className="flex justify-between h-20">
@@ -109,10 +108,10 @@ const Dashboard = () => {
         </div>
       </nav>
 
-      {/* GŁÓWNA TREŚĆ */}
+      {}
       <main className="w-full px-6 lg:px-12 py-10 relative z-10">
 
-        {/* Powitanie */}
+        {}
         <div className="mb-12 border-b border-[#c5a059]/30 pb-6">
           <h1 className="text-4xl lg:text-5xl font-bold text-[#2c241b] mb-2 drop-shadow-sm font-cinzel">
             Witaj w Archiwum, {user?.displayName ? user.displayName.split(' ')[0] : 'Podróżniku'}.
@@ -122,7 +121,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Statystyki */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
 
           <div className="bg-[#fdfbf7] rounded-sm shadow-[4px_4px_0px_0px_rgba(44,36,27,0.2)] border border-[#d4c5a6] p-6 flex items-center gap-5 transform hover:-translate-y-1 transition-transform duration-300">
@@ -173,7 +172,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* MODUŁY */}
+        {}
         <h2 className="text-3xl font-bold text-[#2c241b] mb-8 border-l-4 border-[#8b1e1e] pl-4 flex items-center gap-3 font-cinzel">
           <Compass className="w-8 h-8 text-[#8b1e1e]" />
           Mapa Wiedzy
@@ -181,7 +180,7 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-          {/* 1. KSIĘGA WIEDZY */}
+          {}
           <div
             onClick={() => navigate('/study')}
             className="group bg-[#fdfbf7] rounded-sm border-2 border-[#d4c5a6] overflow-hidden hover:border-[#c5a059] hover:shadow-2xl transition-all duration-300 cursor-pointer relative flex flex-col"
@@ -212,7 +211,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 2. WIELKI TEST */}
+          {}
           <div
             onClick={() => navigate('/drill')}
             className="group bg-[#fdfbf7] rounded-sm border-2 border-[#d4c5a6] overflow-hidden hover:border-[#c5a059] hover:shadow-2xl transition-all duration-300 cursor-pointer relative flex flex-col"
@@ -243,7 +242,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 3. OŚ CZASU */}
+          {}
           <div
             onClick={() => navigate('/timeline')}
             className="group bg-[#fdfbf7] rounded-sm border-2 border-[#d4c5a6] overflow-hidden hover:border-[#c5a059] hover:shadow-2xl transition-all duration-300 cursor-pointer relative flex flex-col"
@@ -274,7 +273,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* 4. AI (WIZJE) */}
+          {}
           <div
             onClick={() => navigate('/ai')}
             className="group bg-[#fdfbf7] rounded-sm border-2 border-[#d4c5a6] overflow-hidden hover:border-[#c5a059] hover:shadow-2xl transition-all duration-300 cursor-pointer relative flex flex-col"
@@ -283,7 +282,7 @@ const Dashboard = () => {
               Beta
             </div>
             <div className="h-48 relative overflow-hidden bg-[#2c241b]">
-              {/* STABILNE ZDJĘCIE (GREEK STATUE) */}
+              {}
               <img
                 src="https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=800&auto=format&fit=crop"
                 className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700 sepia-[.2]"

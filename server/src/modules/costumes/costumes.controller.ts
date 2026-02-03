@@ -5,12 +5,10 @@ const prisma = new PrismaClient();
 
 export class CostumesController {
 
-    // Pobierz losowy strój
     static async getRandomCostume(req: Request, res: Response) {
         try {
             const excludeIds = req.query.exclude ? (req.query.exclude as string).split(',') : [];
 
-            // Pobierz WSZYSTKIE dostępne ID
             const availableCostumes = await prisma.historicalCostume.findMany({
                 where: {
                     id: { notIn: excludeIds }
@@ -24,15 +22,12 @@ export class CostumesController {
             let poolReset = false;
 
             if (availableCostumes.length > 0) {
-                // Losuj z dostępnych
                 const randomIndex = Math.floor(Math.random() * availableCostumes.length);
                 selectedId = availableCostumes[randomIndex].id;
             } else {
-                // Pula wyczerpana - reset
                 console.log('[Costumes] Pool exhausted, resetting cycle!');
                 poolReset = true;
 
-                // Pobierz wszystkie ID z bazy (reset wykluczeń)
                 const allCostumes = await prisma.historicalCostume.findMany({
                     select: { id: true }
                 });
@@ -45,7 +40,6 @@ export class CostumesController {
                 selectedId = allCostumes[randomIndex].id;
             }
 
-            // Pobierz pełne dane wylosowanego stroju
             const randomCostume = await prisma.historicalCostume.findUnique({
                 where: { id: selectedId }
             });
@@ -65,7 +59,6 @@ export class CostumesController {
         }
     }
 
-    // Pobierz wszystkie stroje
     static async getAllCostumes(req: Request, res: Response) {
         try {
             const costumes = await prisma.historicalCostume.findMany();

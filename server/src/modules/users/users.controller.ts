@@ -4,27 +4,22 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// Funkcja obliczająca wymagane XP dla danego poziomu
 function getXPForLevel(level: number): number {
   if (level <= 1) return 0;
-  if (level <= 5) return (level - 1) * 100; // Poziomy 1-5: po 100 XP
-  // Poziomy 6+: wzrost wykładniczy (1.5^(poziom-5) * 100)
+  if (level <= 5) return (level - 1) * 100;
   return 400 + Math.floor(Math.pow(1.5, level - 5) * 100);
 }
 
-// Funkcja obliczająca poziom na podstawie XP
 function calculateLevel(xp: number): number {
   let level = 1;
   let requiredXP = 0;
 
-  // Sprawdzaj kolejne poziomy aż znajdziemy odpowiedni
   while (true) {
     const nextLevelXP = getXPForLevel(level + 1);
     if (xp < nextLevelXP) {
       return level;
     }
     level++;
-    // Zabezpieczenie przed nieskończoną pętlą
     if (level > 100) return 100;
   }
 }
@@ -33,8 +28,7 @@ export class UsersController {
 
   static async getProfile(req: Request, res: Response) {
     try {
-      // @ts-ignore
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
 
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -51,19 +45,16 @@ export class UsersController {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Logika Dni Aktywności (niezależnie od streaka)
       if (user.progress) {
         const now = new Date();
         const lastActive = new Date(user.progress.lastActive);
 
-        // Sprawdź czy to ten sam dzień kalendarzowy (ignoruj czas)
         const isSameDay =
           now.getFullYear() === lastActive.getFullYear() &&
           now.getMonth() === lastActive.getMonth() &&
           now.getDate() === lastActive.getDate();
 
         if (!isSameDay) {
-          // Nowy dzień! Inkrementuj licznik
           console.log(`[UserProgress] New active day for ${user.email}. Incrementing totalActiveDays.`);
           const updatedProgress = await prisma.userProgress.update({
             where: { id: user.progress.id },
@@ -72,9 +63,8 @@ export class UsersController {
               lastActive: now
             }
           });
-          user.progress = updatedProgress; // Zaktualizuj obiekt w pamięci przed wysłaniem
+          user.progress = updatedProgress;
         } else {
-          // Ten sam dzień - zaktualizuj tylko lastActive (opcjonalne, ale dobre dla analityki)
           await prisma.userProgress.update({
             where: { id: user.progress.id },
             data: { lastActive: now }
@@ -88,7 +78,6 @@ export class UsersController {
 
       const { password, ...userData } = user;
 
-      // Oblicz aktualny poziom i XP do następnego poziomu
       const currentLevel = user.progress ? calculateLevel(user.progress.xp) : 1;
       const xpForNextLevel = getXPForLevel(currentLevel + 1);
       const xpForCurrentLevel = getXPForLevel(currentLevel);
@@ -119,8 +108,7 @@ export class UsersController {
 
   static async changePassword(req: Request, res: Response) {
     try {
-      // @ts-ignore
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       const { currentPassword, newPassword } = req.body;
 
       if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -161,8 +149,7 @@ export class UsersController {
 
   static async addXP(req: Request, res: Response) {
     try {
-      // @ts-ignore
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       const { amount, reason } = req.body;
 
       if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -170,7 +157,6 @@ export class UsersController {
         return res.status(400).json({ error: 'Invalid XP amount' });
       }
 
-      // Aktualizacja lub utworzenie postępu
       const progress = await prisma.userProgress.upsert({
         where: { userId },
         create: {
@@ -185,7 +171,6 @@ export class UsersController {
         }
       });
 
-      // Progresywna logika levelowania
       const newLevel = calculateLevel(progress.xp + amount);
 
       if (newLevel > progress.level) {

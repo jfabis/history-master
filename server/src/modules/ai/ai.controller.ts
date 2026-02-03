@@ -9,13 +9,11 @@ export class AIController {
 
   static async generate(req: Request, res: Response) {
     try {
-      // @ts-ignore
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       const { era, subject, style, mode, prompt } = req.body;
 
       if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-      // Skoro usunęliśmy szablony z adaptera, prompt MUSI być dostarczony
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required. Hardcoded templates have been removed.' });
       }
@@ -26,7 +24,7 @@ export class AIController {
 
       const asset = await prisma.generatedAsset.create({
         data: {
-          prompt: prompt.substring(0, 100) + '...', // Skracamy do logów
+          prompt: prompt.substring(0, 100) + '...',
           imageUrl: imageUrl,
           provider: 'Google Vertex AI',
         }

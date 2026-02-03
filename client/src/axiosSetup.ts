@@ -1,7 +1,6 @@
 
 import axios from 'axios';
 
-// Flaga zapobiegająca pętli nieskończonej
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
@@ -25,11 +24,9 @@ export const setupAxiosInterceptors = () => {
         async (error) => {
             const originalRequest = error.config;
 
-            // Jeśli błąd to 401 i nie próbowaliśmy jeszcze odświeżać
             if (error.response?.status === 401 && !originalRequest._retry) {
 
                 if (isRefreshing) {
-                    // Jeśli odświeżanie już trwa, dodaj zapytanie do kolejki
                     return new Promise(function (resolve, reject) {
                         failedQueue.push({ resolve, reject });
                     }).then(token => {
@@ -69,7 +66,6 @@ export const setupAxiosInterceptors = () => {
 
                 } catch (refreshError) {
                     processQueue(refreshError, null);
-                    // Jeśli odświeżanie się nie uda, wyloguj użytkownika
                     localStorage.removeItem('token');
                     localStorage.removeItem('refreshToken');
                     window.location.href = '/login';

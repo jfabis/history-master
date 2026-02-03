@@ -1,9 +1,3 @@
-/**
- * Testy dla systemu poziomów użytkownika
- * Testuje progresywny system XP bez zależności od bazy danych
- */
-
-// Funkcja obliczająca wymagane XP dla danego poziomu (skopiowana z users.controller.ts)
 function getXPForLevel(level: number): number {
     if (level <= 1) return 0;
     if (level <= 5) return (level - 1) * 100;
@@ -34,7 +28,7 @@ describe('User Levels - Progressive XP System', () => {
         });
 
         test('poziom 6 rozpoczyna wzrost wykładniczy', () => {
-            expect(getXPForLevel(6)).toBe(550); // 400 + 150
+            expect(getXPForLevel(6)).toBe(550);
         });
 
         test('XP rośnie wykładniczo po poziomie 5', () => {

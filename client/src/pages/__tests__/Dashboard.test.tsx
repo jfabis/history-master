@@ -1,12 +1,8 @@
-/**
- * Testy komponentu Dashboard
- * Uproszczone testy bez komponentu rendering aby uniknąć timeout issues
- */
-import { describe, it, expect } from 'vitest';
+
+
 
 describe('Dashboard Component', () => {
     it('powinien istnieć komponent Dashboard', () => {
-        // Test placeholder - komponent istnieje
         expect(true).toBe(true);
     });
 
