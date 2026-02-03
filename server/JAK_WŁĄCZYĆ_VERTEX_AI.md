@@ -1,10 +1,5 @@
 # Jak włączyć prawdziwe Google Vertex AI (Imagen 3)
 
-## Aktualny stan
-- ✅ Mock adapter z profesjonalnymi obrazami z Wikimedia Commons
-- ✅ Profesjonalne prompty gotowe dla Vertex AI
-- ⏳ Vertex AI wymaga włączenia billing
-
 ## Krok po kroku: Włączenie Vertex AI
 
 ### 1. Włącz billing w Google Cloud
